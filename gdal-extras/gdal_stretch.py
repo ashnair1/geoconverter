@@ -70,8 +70,8 @@ def parse_args() -> Namespace:
         "-s",
         "--stretch",
         nargs=2,
-        type=int,
-        default=[2, 98],
+        type=float,
+        default=[2.0, 98.0],
         help="stretch lower & upper percentiles",
     )
 
@@ -103,14 +103,15 @@ def main() -> None:
         )
 
         rows, cols = bands_scaled.shape[:2]
-        DataType = inDs.GetRasterBand(1).DataType
 
         print(
             f"Applying percentile normalization on {entry}. Output will be written to {out}"
         )
 
         driver = gdal.GetDriverByName("GTiff")
-        outDs = driver.Create(str(out), cols, rows, bands_scaled.shape[-1], DataType)
+        outDs = driver.Create(
+            str(out), cols, rows, bands_scaled.shape[-1], gdal.GDT_Float64
+        )
 
         # Write metadata
         srs.ImportFromWkt(inDs.GetProjection())
