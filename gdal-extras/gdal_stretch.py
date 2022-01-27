@@ -83,6 +83,11 @@ def main() -> None:
     files, outfiles = parse_files(args.input, args.output)
 
     for entry, out in zip(files, outfiles):
+
+        print(
+            f"Applying percentile normalization on {entry}. Output will be written to {out}"
+        )
+
         inDs = gdal.Open(args.input)
         srs = osr.SpatialReference()
 
@@ -103,10 +108,6 @@ def main() -> None:
         )
 
         rows, cols = bands_scaled.shape[:2]
-
-        print(
-            f"Applying percentile normalization on {entry}. Output will be written to {out}"
-        )
 
         driver = gdal.GetDriverByName("GTiff")
         outDs = driver.Create(
