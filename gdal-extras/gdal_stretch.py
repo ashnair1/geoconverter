@@ -10,6 +10,7 @@ Usage example
 python gdal_stretch.py -i ./data/mosaic.tif -b 5,3,2 -o ./data/mosaic_stretched.tif
 """
 
+import os
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
 from typing import List, Optional, Sequence, Tuple, Union
@@ -43,12 +44,12 @@ def parse_files(input: str, output: str) -> Tuple[List[Path], List[Path]]:
         assert outpath.is_dir()
         files = []
         outpaths = []
-        for f in inpath.iterdir():
-            # Skip auxiliary files
-            if f.suffix.lower() == ".xml":
+        for f in inpath.rglob("*"):
+            # Skip auxiliary files and subdirectories
+            if f.suffix.lower() == ".xml" or f.is_dir():
                 continue
             files.append(f)
-            outpaths.append(outpath / (f.stem + f"_stretched.{f.suffix}"))
+            outpaths.append(outpath / f"{f.stem}_stretched{f.suffix}")
     elif inpath.is_file():
         outpaths = (
             [inpath.parent / Path(f"stretched{inpath.suffix}")]
@@ -87,8 +88,7 @@ def main() -> None:
         print(
             f"Applying percentile normalization on {entry}. Output will be written to {out}"
         )
-
-        inDs = gdal.Open(args.input)
+        inDs = gdal.Open(str(entry))
         srs = osr.SpatialReference()
 
         bands = (
@@ -109,10 +109,23 @@ def main() -> None:
 
         rows, cols = bands_scaled.shape[:2]
 
-        driver = gdal.GetDriverByName("GTiff")
-        outDs = driver.Create(
-            str(out), cols, rows, bands_scaled.shape[-1], gdal.GDT_Float64
-        )
+        driver = inDs.GetDriver()
+
+        if driver.GetMetadataItem(gdal.DCAP_CREATE):
+            outDs = driver.Create(
+                str(out), cols, rows, bands_scaled.shape[-1], gdal.GDT_Float64
+            )
+        elif driver.GetMetadataItem(gdal.DCAP_CREATECOPY):
+            tmp_drv = gdal.GetDriverByName("GTiff")
+            bands_scaled *= np.iinfo(np.uint16).max
+            outDs = tmp_drv.Create(
+                "/tmp/tmp.tif", cols, rows, bands_scaled.shape[-1], gdal.GDT_UInt16
+            )
+
+        else:
+            drv_name = driver.GetDescription()
+            print(f"{drv_name} does not support creation. Skipping..")
+            continue
 
         # Write metadata
         srs.ImportFromWkt(inDs.GetProjection())
@@ -123,6 +136,10 @@ def main() -> None:
         for i in range(bands_scaled.shape[-1]):
             outBand = outDs.GetRasterBand(i + 1)
             outBand.WriteArray(bands_scaled[:, :, i])
+
+        if driver.GetMetadataItem(gdal.DCAP_CREATECOPY):
+            outDs = driver.CreateCopy(str(out), outDs)
+            os.remove("/tmp/tmp.tif")
         # Close raster file
         outDs = None
         inDs = None

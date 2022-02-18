@@ -110,7 +110,7 @@ def parse_files(input: str, output: str, format: str) -> Tuple[List[Path], List[
             if f.suffix.lower() == ".xml":
                 continue
             files.append(f)
-            outpaths.append(outpath / (f.stem + f"_rescaled.{ext}"))
+            outpaths.append(outpath / f"{f.stem}_rescaled.{ext}")
     elif inpath.is_file():
         outpaths = (
             [inpath.parent / Path(f"rescaled{inpath.suffix}")]
