@@ -105,12 +105,12 @@ def parse_files(input: str, output: str, format: str) -> Tuple[List[Path], List[
         assert outpath.is_dir()
         files = []
         outpaths = []
-        for f in inpath.iterdir():
-            # Skip auxiliary files
-            if f.suffix.lower() == ".xml":
+        for f in inpath.rglob("*"):
+            # Skip auxiliary files and subdirectories	
+            if f.suffix.lower() == ".xml" or f.is_dir():
                 continue
             files.append(f)
-            outpaths.append(outpath / f"{f.stem}_rescaled.{ext}")
+            outpaths.append(outpath / f"{f.stem}_rescaled{ext}")
     elif inpath.is_file():
         outpaths = (
             [inpath.parent / Path(f"rescaled{inpath.suffix}")]
