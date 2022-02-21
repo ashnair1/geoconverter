@@ -8,6 +8,7 @@ Requires GDAL>=3.1
 Usage:
 
 python gdal-extras/gdal_rescale.py -i ./data/in/a.tif
+python gdal-extras/gdal_rescale.py -i ./data/in/a.tif -o out/a_cog.tif -of COG
 python gdal-extras/gdal_rescale.py -i ./data/in/a.tif -of COG -or 0 255
 python gdal-extras/gdal_rescale.py -i ./data/in/ -o ./data/out/ -of JPEG -b 5,3,2
 
@@ -112,7 +113,7 @@ def parse_files(input: str, output: str, format: str) -> Tuple[List[Path], List[
             if f.suffix.lower() == ".xml" or f.is_dir():
                 continue
             files.append(f)
-            outpaths.append(outpath / f"{f.stem}_rescaled{ext}")
+            outpaths.append(outpath / f"{f.stem}_rescaled.{ext}")
     elif inpath.is_file():
         outpaths = (
             [inpath.parent / Path(f"rescaled{inpath.suffix}")]
