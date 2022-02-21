@@ -92,7 +92,7 @@ def parse_files(input: str, output: str, format: str) -> Tuple[List[Path], List[
         )
 
     if drv.GetMetadataItem(gdal.DCAP_RASTER):
-        ext = "tif" if format == "COG" else drv.GetMetadata_Dict().get("DMD_EXTENSION")
+        ext = ".tif" if format == "COG" else drv.GetMetadata_Dict().get("DMD_EXTENSION")
     if not ext:
         raise AssertionError(f"Specified output format {format} is not a raster format")
 
@@ -106,7 +106,7 @@ def parse_files(input: str, output: str, format: str) -> Tuple[List[Path], List[
         files = []
         outpaths = []
         for f in inpath.rglob("*"):
-            # Skip auxiliary files and subdirectories	
+            # Skip auxiliary files and subdirectories
             if f.suffix.lower() == ".xml" or f.is_dir():
                 continue
             files.append(f)
