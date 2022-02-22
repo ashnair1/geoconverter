@@ -3,6 +3,11 @@ import tkinter as tk
 from tkinter import filedialog as fd
 from tkinter import ttk
 
+from gdal_extras.gdal_convert import cli_entrypoint
+
+# TODO: Reduce tab duplication
+
+
 # Root window
 root = tk.Tk()
 root.title("Converter")
@@ -28,6 +33,19 @@ ofilepath = tk.StringVar(tab1)
 ifolderpath = tk.StringVar(tab2)
 ofolderpath = tk.StringVar(tab2)
 
+# TODO: Color status output
+status1 = tk.StringVar(tab1, value="Idle")
+statuslbl1 = tk.Label(tab1, text="Status:")
+statuslbl1.place(relx=0.7, rely=0.7, anchor="e")
+statusval1 = tk.Label(tab1, textvariable=status1)
+statusval1.place(relx=0.85, rely=0.7, anchor="e")
+
+status2 = tk.StringVar(tab2, value="Idle")
+statuslbl2 = tk.Label(tab2, text="Status:")
+statuslbl2.place(relx=0.7, rely=0.7, anchor="e")
+statusval2 = tk.Label(tab2, textvariable=status2)
+statusval2.place(relx=0.85, rely=0.7, anchor="e")
+
 
 # Dropdown menu options
 bitres_opts = [
@@ -47,6 +65,9 @@ outfmt_opts = [
     "JPEG2000",
     "IMG",
 ]
+
+# TODO: Do we really need this mapping?
+outdrv_map = {"JPEG2000": "JP2OpenJPEG", "IMG": "HFA"}
 
 bitclicked = tk.StringVar(value="Byte")
 outclicked = tk.StringVar(value="COG")
@@ -147,14 +168,19 @@ def convert_file():
     outfile = ofilepath.get()
     dtype = bitclicked.get()
     outfmt = outclicked.get()
-    print(infile)
-    print(outfile)
-    print(outfmt)
-    print(dtype)
-    from gdal_extras.gdal_convert import cli_entrypoint
-    cli_entrypoint(infile, outfile, outfmt, dtype)
-    #root.destroy()
-
+    if outfmt in outdrv_map:
+        outfmt = outdrv_map[outfmt]
+    status1.set("Processing")
+    try:
+        cli_entrypoint(infile, outfile, outfmt, dtype)
+        # Set status to done and clear boxes
+        status1.set("Idle")
+        ifilepath.set("")
+        ofilepath.set("")
+    except:
+        status1.set("ERROR")
+        raise
+        # TODO: Show traceback
 
 
 def convert_directory():
@@ -162,10 +188,20 @@ def convert_directory():
     outfolder = ofolderpath.get()
     dtype = bitclicked.get()
     outfmt = outclicked.get()
-    print(infolder)
-    print(outfolder)
-    print(outfmt)
-    print(dtype)
+    if outfmt in outdrv_map:
+        outfmt = outdrv_map[outfmt]
+
+    status2.set("Processing")
+    try:
+        cli_entrypoint(infolder, outfolder, outfmt, dtype)
+        # Set status to done and clear boxes
+        status2.set("Idle")
+        ifolderpath.set("")
+        ofolderpath.set("")
+    except:
+        status2.set("ERROR")
+        raise
+        # TODO: Show traceback
 
 
 # open file button
@@ -197,7 +233,7 @@ open_folder_button.pack(anchor="e", padx=20, pady=10)
 open_ofile_button.pack(anchor="e", padx=20, pady=10)
 open_ofolder_button.pack(anchor="e", padx=20, pady=10)
 
-convert_button1.place(relx=0.5, rely=0.7, anchor=tk.CENTER)
-convert_button2.place(relx=0.5, rely=0.7, anchor=tk.CENTER)
+convert_button1.place(relx=0.3, rely=0.7, anchor=tk.CENTER)
+convert_button2.place(relx=0.3, rely=0.7, anchor=tk.CENTER)
 
 root.mainloop()

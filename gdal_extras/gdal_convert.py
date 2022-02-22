@@ -74,7 +74,7 @@ def setupOptions(
     )
 
 
-def parse_args() -> Namespace:
+def get_args() -> Namespace:
     parser = ArgumentParser(description="Converter")
     parser.add_argument("-i", "--input", help="input image/directory")
     parser.add_argument("-b", "--bands", type=str, help="bands string delimited by ,")
@@ -88,6 +88,7 @@ def parse_args() -> Namespace:
 
 def parse_files(input: str, output: str, format: str) -> Tuple[List[Path], List[Path]]:
 
+    assert Path(input).exists() and Path(output).exists()
     drv = gdal.GetDriverByName(format)
     if not drv:
         raise AssertionError(
@@ -124,12 +125,16 @@ def parse_files(input: str, output: str, format: str) -> Tuple[List[Path], List[
     return files, outpaths
 
 
-def cli_entrypoint(*args):
-    print(args)
+def cli_entrypoint(input, output, format, dtype):
+    args = get_args()
+    args.input = input
+    args.output = output
+    args.format = format
+    args.dtype = dtype
+    main(args)
 
 
-def main() -> None:
-    args = parse_args()
+def main(args: Namespace) -> None:
     files, outfiles = parse_files(args.input, args.output, args.format)
 
     bands_out = [int(b) for b in args.bands.split(",")] if args.bands else None
@@ -151,4 +156,5 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    args = get_args()
+    main(args)
