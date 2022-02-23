@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-""" 
+"""
 Rescales imagery to specified bit resolution and converts to specified format
 
 Requires GDAL>=3.1
@@ -12,7 +12,8 @@ python gdal-extras/gdal_rescale.py -i ./data/in/a.tif -o out/a_cog.tif -of COG
 python gdal-extras/gdal_rescale.py -i ./data/in/a.tif -of COG -or 0 255
 python gdal-extras/gdal_rescale.py -i ./data/in/ -o ./data/out/ -of JPEG -b 5,3,2
 
-Full disclosure: This can be done using gdal_translate but you will need to manually set the scale params
+Full disclosure: This can be done using gdal_translate but you will need to
+manually set the scale params
 """
 
 from argparse import ArgumentParser, Namespace
@@ -92,7 +93,8 @@ def parse_files(input: str, output: str, format: str) -> Tuple[List[Path], List[
     drv = gdal.GetDriverByName(format)
     if not drv:
         raise AssertionError(
-            "Invalid Driver. Refer GDAL documentation for accepted list of raster drivers"
+            "Invalid Driver. Refer GDAL documentation "
+            "for accepted list of raster drivers"
         )
 
     if drv.GetMetadataItem(gdal.DCAP_RASTER):
@@ -125,7 +127,7 @@ def parse_files(input: str, output: str, format: str) -> Tuple[List[Path], List[
     return files, outpaths
 
 
-def cli_entrypoint(input, output, format, dtype):
+def cli_entrypoint(input: str, output: str, format: str, dtype: str) -> None:
     args = get_args()
     args.input = input
     args.output = output
@@ -148,11 +150,7 @@ def main(args: Namespace) -> None:
     for entry, out in zip(files, outfiles):
         ds = gdal.Open(str(entry))
         options = setupOptions(ds, args.format, args.dtype, outputRange, bands_out)
-        gdal.Translate(
-            destName=str(out),
-            srcDS=ds,
-            options=options,
-        )
+        gdal.Translate(destName=str(out), srcDS=ds, options=options)
 
 
 if __name__ == "__main__":

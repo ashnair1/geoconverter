@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-""" 
+"""
 Apply contrast stretch on imagery
 
 Requires GDAL>=3.1
@@ -86,7 +86,8 @@ def main() -> None:
     for entry, out in zip(files, outfiles):
 
         print(
-            f"Applying percentile normalization on {entry}. Output will be written to {out}"
+            f"Applying percentile normalization on {entry}. "
+            f"Output will be written to {out}"
         )
         inDs = gdal.Open(str(entry))
         srs = osr.SpatialReference()
@@ -139,7 +140,8 @@ def main() -> None:
 
         if driver.GetMetadataItem(gdal.DCAP_CREATECOPY):
             outDs = driver.CreateCopy(str(out), outDs)
-            os.remove("/tmp/tmp.tif")
+            if os.path.exists("/tmp/tmp.tif"):
+                os.remove("/tmp/tmp.tif")
         # Close raster file
         outDs = None
         inDs = None
