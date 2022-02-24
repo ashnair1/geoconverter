@@ -16,6 +16,8 @@ FILETYPES = (
 # TODO: Do we really need this mapping?
 DRIVER_MAP = {"JPEG2000": "JP2OpenJPEG", "IMG": "HFA"}
 
+STATUS_COLORS = {"Idle": "light gray", "Processing": "light green", "ERROR": "red"}
+
 
 class NotebookTab(ttk.Frame):
     def __init__(
@@ -66,24 +68,28 @@ class NotebookTab(ttk.Frame):
         outfmt = self.format.get()
         if outfmt in DRIVER_MAP:
             outfmt = DRIVER_MAP[outfmt]
-
         self.status.set("Processing")
+        self.statusval.config(bg=STATUS_COLORS["Processing"])
+
         try:
             cli_entrypoint(inpath, outpath, outfmt, dtype)
             # Set status to done and clear boxes
             self.status.set("Idle")
+            self.statusval.config(bg=STATUS_COLORS["Idle"])
             self.ipath.set("")
             self.opath.set("")
         except Exception:
             self.status.set("ERROR")
+            self.statusval.config(bg=STATUS_COLORS["ERROR"])
             raise
 
     def create_widgets(self) -> None:
 
         statuslbl = tk.Label(self, text="Status:")
         statuslbl.place(relx=0.7, rely=0.7, anchor="e")
-        statusval = tk.Label(self, textvariable=self.status)
-        statusval.place(relx=0.85, rely=0.7, anchor="e")
+        self.statusval = tk.Label(self, textvariable=self.status)
+        self.statusval.config(bg="light gray")
+        self.statusval.place(relx=0.85, rely=0.7, anchor="e")
 
         inputpath = tk.Entry(self, textvariable=self.ipath)
         inputpath.update()

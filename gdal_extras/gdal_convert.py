@@ -119,8 +119,7 @@ def get_extension(input: Union[Path, str], format: str) -> str:
 
 
 def parse_files(input: str, output: str, format: str) -> Tuple[List[Path], List[Path]]:
-
-    assert Path(input).exists()
+    assert Path(input).exists() and input != ""
 
     inpath = Path(input)
     outpath = None if not output else Path(output)
@@ -163,18 +162,17 @@ def main(args: Namespace) -> None:
 
     bands_out = [int(b) for b in args.bands.split(",")] if args.bands else None
 
-    if args.range:
-        # Custom range
-        outputRange = [float(i) for i in args.range]
-    else:
-        outputRange = BITRANGE[args.dtype]
-
     for entry, out in zip(files, outfiles):
         ds = gdal.Open(str(entry))
         if args.format.lower() == "native":
             args.format = ds.GetDriver().GetDescription()
         if args.dtype.lower() == "native":
             args.dtype = get_dtype(entry)
+        if args.range:
+            # Custom range
+            outputRange = [float(i) for i in args.range]
+        else:
+            outputRange = BITRANGE[args.dtype]
 
         options = setupOptions(ds, args.format, args.dtype, outputRange, bands_out)
         gdal.Translate(destName=str(out), srcDS=ds, options=options)
