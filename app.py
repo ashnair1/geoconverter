@@ -1,8 +1,10 @@
 import os
 import tkinter as tk
+import traceback
 from tkinter import filedialog as fd
 from tkinter import ttk
-from typing import Any, Tuple
+from tkinter.messagebox import showerror
+from typing import Any, Tuple, Union
 
 from gdal_extras.gdal_convert import cli_entrypoint
 
@@ -19,6 +21,19 @@ DRIVER_MAP = {"JPEG2000": "JP2OpenJPEG", "IMG": "HFA"}
 STATUS_COLORS = {"Idle": "light gray", "Processing": "light green", "ERROR": "red"}
 
 
+def showtraceback(widget: "NotebookTab", msg: str) -> None:
+    root: Union[tk.Tk, tk.Toplevel] = widget.winfo_toplevel()
+    errWindow = tk.Toplevel(root)
+    errWindow.title("Traceback")
+
+    # sets the geometry of toplevel
+    errWindow.geometry("500x500")
+    T = tk.Text(errWindow, height=100, width=500)
+    T.pack()
+    T.insert(tk.END, msg)
+    T.configure(state="disabled")
+
+
 class NotebookTab(ttk.Frame):
     def __init__(
         self,
@@ -26,7 +41,7 @@ class NotebookTab(ttk.Frame):
         io_callbacks: Tuple[Any, Any],
         dtype: tk.StringVar,
         format: tk.StringVar,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> None:
         if kwargs:
             super().__init__(master, **kwargs)
@@ -81,6 +96,12 @@ class NotebookTab(ttk.Frame):
         except Exception:
             self.status.set("ERROR")
             self.statusval.config(bg=STATUS_COLORS["ERROR"])
+            showerror(
+                title="Error",
+                message="An unexpected error occurred."
+                "Close window or press OK to view traceback",
+            )
+            showtraceback(self, msg=traceback.format_exc())
             raise
 
     def create_widgets(self) -> None:
