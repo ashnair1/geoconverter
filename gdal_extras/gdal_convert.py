@@ -18,7 +18,7 @@ manually set the scale params
 
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Union
 
 from osgeo import gdal
 
@@ -80,17 +80,29 @@ def get_args() -> Namespace:
     parser.add_argument("-i", "--input", help="input image/directory")
     parser.add_argument("-b", "--bands", type=str, help="bands string delimited by ,")
     parser.add_argument("-o", "--output", help="output image/directory")
-    parser.add_argument("-of", "--format", default="GTiff", help="output format")
-    parser.add_argument("-ot", "--dtype", default="Byte", help="output dtype")
+    parser.add_argument("-of", "--format", default="Native", help="output format")
+    parser.add_argument("-ot", "--dtype", default="Native", help="output dtype")
     parser.add_argument("-or", "--range", type=float, nargs=2, help="output range")
 
     return parser.parse_args()
 
 
-def parse_files(input: str, output: str, format: str) -> Tuple[List[Path], List[Path]]:
+def get_dtype(input: Union[Path, str]) -> str:
+    ds = gdal.Open(str(input))
+    DataType = ds.GetRasterBand(1).DataType
+    dtype: str = gdal.GetDataTypeName(DataType)
+    ds = None
+    return dtype
 
-    assert Path(input).exists() and Path(output).exists()
-    drv = gdal.GetDriverByName(format)
+
+def get_extension(input: Union[Path, str], format: str) -> str:
+
+    if format.lower() != "native":
+        drv = gdal.GetDriverByName(format)
+    else:
+        ds = gdal.Open(str(input))
+        drv = ds.GetDriver()
+        del ds
     if not drv:
         raise AssertionError(
             "Invalid Driver. Refer GDAL documentation "
@@ -98,9 +110,17 @@ def parse_files(input: str, output: str, format: str) -> Tuple[List[Path], List[
         )
 
     if drv.GetMetadataItem(gdal.DCAP_RASTER):
-        ext = "tif" if format == "COG" else drv.GetMetadata_Dict().get("DMD_EXTENSION")
+        ext: str = (
+            "tif" if format == "COG" else drv.GetMetadata_Dict().get("DMD_EXTENSION")
+        )
     if not ext:
         raise AssertionError(f"Specified output format {format} is not a raster format")
+    return ext
+
+
+def parse_files(input: str, output: str, format: str) -> Tuple[List[Path], List[Path]]:
+
+    assert Path(input).exists()
 
     inpath = Path(input)
     outpath = None if not output else Path(output)
@@ -116,8 +136,10 @@ def parse_files(input: str, output: str, format: str) -> Tuple[List[Path], List[
             if f.suffix.lower() == ".xml" or f.is_dir():
                 continue
             files.append(f)
+            ext = get_extension(f, format)
             outpaths.append(outpath / f"{f.stem}_converted.{ext}")
     elif inpath.is_file():
+        ext = get_extension(inpath, format)
         outpaths = (
             [inpath.parent / Path(f"converted.{ext}")] if not outpath else [outpath]
         )
@@ -149,8 +171,14 @@ def main(args: Namespace) -> None:
 
     for entry, out in zip(files, outfiles):
         ds = gdal.Open(str(entry))
+        if args.format.lower() == "native":
+            args.format = ds.GetDriver().GetDescription()
+        if args.dtype.lower() == "native":
+            args.dtype = get_dtype(entry)
+
         options = setupOptions(ds, args.format, args.dtype, outputRange, bands_out)
         gdal.Translate(destName=str(out), srcDS=ds, options=options)
+        ds = None
 
 
 if __name__ == "__main__":

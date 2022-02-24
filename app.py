@@ -113,14 +113,15 @@ class OptionsTab(ttk.Frame):
             super().__init__(master)
 
         # Set up options
-        self.dtype = tk.StringVar(value="Byte")
-        self.format = tk.StringVar(value="COG")
+        self.dtype = tk.StringVar(value="Native")
+        self.format = tk.StringVar(value="Native")
 
         self.create_widgets()
 
     def create_widgets(self) -> None:
         # Dropdown menu options
         bitres_opts = [
+            "Native",
             "Byte",
             "UInt8",
             "UInt16",
@@ -131,12 +132,12 @@ class OptionsTab(ttk.Frame):
             "Float64",
         ]
 
-        outfmt_opts = ["COG", "GTiff", "JPEG2000", "IMG"]
+        outfmt_opts = ["Native", "COG", "GTiff", "JPEG2000", "IMG"]
         # Create Label
         label = tk.Label(self, text="Options")
         label.pack(side="top")
 
-        bitlbl = tk.Label(self, text="Dtype")
+        bitlbl = tk.Label(self, text="DType")
         bitlbl.place(relx=0.4, rely=0.3, anchor=tk.CENTER)
 
         fmtlbl = tk.Label(self, text="Format")
@@ -154,7 +155,7 @@ def main() -> None:
 
     # Root window
     root = tk.Tk()
-    root.title("Test")
+    root.title("Converter")
     root.resizable(True, False)
     root.geometry("550x250")
 
