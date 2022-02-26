@@ -7,20 +7,23 @@ Requires GDAL>=3.1
 
 Usage:
 
-python gdal-extras/gdal_rescale.py -i ./data/in/a.tif
-python gdal-extras/gdal_rescale.py -i ./data/in/a.tif -o out/a_cog.tif -of COG
-python gdal-extras/gdal_rescale.py -i ./data/in/a.tif -of COG -or 0 255
-python gdal-extras/gdal_rescale.py -i ./data/in/ -o ./data/out/ -of JPEG -b 5,3,2
+python gdal-extras/gdal_convert.py -i ./data/in/a.tif
+python gdal-extras/gdal_convert.py -i ./data/in/a.tif -o out/a_cog.tif -of COG
+python gdal-extras/gdal_convert.py -i ./data/in/a.tif -of COG -or 0 255
+python gdal-extras/gdal_convert.py -i ./data/in/ -o ./data/out/ -of JPEG -b 5,3,2
+python gdal-extras/gdal_convert.py -i ./data/in/ -o ./data/out/ -of JPEG -b 5,3,2 stretch 2 98
 
 Full disclosure: This can be done using gdal_translate but you will need to
 manually set the scale params
 """
 
 from argparse import ArgumentParser, Namespace
-from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional
 
+import numpy as np
 from osgeo import gdal
+
+from gdal_extras.utils import get_dtype, parse_files
 
 BITRANGE = {
     "Byte": [0.0, 255.0],
@@ -45,12 +48,30 @@ TYPE_DICT = {
 }  # type: Dict[str, int]
 
 
-def getScaleParams(ds: gdal.Dataset, outputRange: List[float]) -> List[List[float]]:
-    stats = [
-        ds.GetRasterBand(i + 1).GetStatistics(True, True) for i in range(ds.RasterCount)
-    ]
-    vmin, vmax, vmean, vstd = zip(*stats)
-    scaleParams = list(zip(*[vmin, vmax]))
+def getScaleParams(
+    ds: gdal.Dataset,
+    outputRange: List[float],
+    stretch: Optional[bool],
+    lower: float,
+    upper: float,
+) -> List[List[float]]:
+
+    if stretch:
+        band_arr = ds.ReadAsArray()  # (B, H, W)
+        assert band_arr.ndim == 3
+        lower_percentile = np.percentile(band_arr, lower, axis=(1, 2))
+        upper_percentile = np.percentile(band_arr, upper, axis=(1, 2))
+        scaleParams = [
+            [lower, upper] for lower, upper in zip(lower_percentile, upper_percentile)
+        ]
+    else:
+        stats = [
+            ds.GetRasterBand(i + 1).GetStatistics(True, True)
+            for i in range(ds.RasterCount)
+        ]
+        vmin, vmax, vmean, vstd = zip(*stats)
+        scaleParams = list(zip(*[vmin, vmax]))
+
     scaleParams = [list(s) for s in scaleParams]
     return [s + outputRange for s in scaleParams]
 
@@ -61,9 +82,12 @@ def setupOptions(
     outputType: str,
     outputRange: List[float],
     bands: Optional[List[int]],
+    stretch: Optional[bool] = False,
+    lower: float = 0.0,
+    upper: float = 100.0,
 ) -> gdal.GDALTranslateOptions:
 
-    scaleParams = getScaleParams(ds, outputRange)
+    scaleParams = getScaleParams(ds, outputRange, stretch, lower, upper)
     if not bands:
         bands = list(range(1, ds.RasterCount + 1))
     scaleParams = [scaleParams[i - 1] for i in bands]
@@ -84,76 +108,41 @@ def get_args() -> Namespace:
     parser.add_argument("-ot", "--dtype", default="Native", help="output dtype")
     parser.add_argument("-or", "--range", type=float, nargs=2, help="output range")
 
+    subparsers = parser.add_subparsers(dest="subcommands", help="Subcommands")
+
+    # Contrast stretching
+    stretch_parser = subparsers.add_parser("stretch", help="Contrast stretch")
+    stretch_parser.add_argument(
+        "-s",
+        "--stretch",
+        nargs=2,
+        type=float,
+        default=[0.0, 100.0],
+        metavar=("lower", "upper"),
+        required=False,
+        help="stretch lower & upper percentiles",
+    )
+
     return parser.parse_args()
 
 
-def get_dtype(input: Union[Path, str]) -> str:
-    ds = gdal.Open(str(input))
-    DataType = ds.GetRasterBand(1).DataType
-    dtype: str = gdal.GetDataTypeName(DataType)
-    ds = None
-    return dtype
-
-
-def get_extension(input: Union[Path, str], format: str) -> str:
-
-    if format.lower() != "native":
-        drv = gdal.GetDriverByName(format)
-    else:
-        ds = gdal.Open(str(input))
-        drv = ds.GetDriver()
-        del ds
-    if not drv:
-        raise AssertionError(
-            "Invalid Driver. Refer GDAL documentation "
-            "for accepted list of raster drivers"
-        )
-
-    if drv.GetMetadataItem(gdal.DCAP_RASTER):
-        ext: str = (
-            "tif" if format == "COG" else drv.GetMetadata_Dict().get("DMD_EXTENSION")
-        )
-    if not ext:
-        raise AssertionError(f"Specified output format {format} is not a raster format")
-    return ext
-
-
-def parse_files(input: str, output: str, format: str) -> Tuple[List[Path], List[Path]]:
-    assert Path(input).exists() and input != ""
-
-    inpath = Path(input)
-    outpath = None if not output else Path(output)
-
-    if inpath.is_dir():
-        # If input is a dir, then output dir must be specified
-        outpath = Path(output)
-        assert outpath.is_dir()
-        files = []
-        outpaths = []
-        for f in inpath.rglob("*"):
-            # Skip auxiliary files and subdirectories
-            if f.suffix.lower() == ".xml" or f.is_dir():
-                continue
-            files.append(f)
-            ext = get_extension(f, format)
-            outpaths.append(outpath / f"{f.stem}_converted.{ext}")
-    elif inpath.is_file():
-        ext = get_extension(inpath, format)
-        outpaths = (
-            [inpath.parent / Path(f"converted.{ext}")] if not outpath else [outpath]
-        )
-        assert inpath.suffix.lower() != ".xml"
-        files = [inpath]
-
-    return files, outpaths
-
-
-def cli_entrypoint(input: str, output: str, format: str, dtype: str) -> None:
+def cli_entrypoint(
+    input: str,
+    output: str,
+    format: str,
+    dtype: str,
+    docontrast: bool,
+    lower: float,
+    upper: float,
+) -> None:
     args = get_args()
     args.input = input
     args.output = output
     args.format = format
     args.dtype = dtype
+    if docontrast:
+        args.subcommands = "stretch"
+        args.stretch = (lower, upper)
     main(args)
 
 
@@ -174,7 +163,18 @@ def main(args: Namespace) -> None:
         else:
             outputRange = BITRANGE[args.dtype]
 
-        options = setupOptions(ds, args.format, args.dtype, outputRange, bands_out)
+        if args.subcommands == "stretch":
+            kwargs = {
+                "stretch": True,
+                "lower": args.stretch[0],
+                "upper": args.stretch[1],
+            }
+        else:
+            kwargs = {}
+
+        options = setupOptions(
+            ds, args.format, args.dtype, outputRange, bands_out, **kwargs
+        )
         gdal.Translate(destName=str(out), srcDS=ds, options=options)
         ds = None
 

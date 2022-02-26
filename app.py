@@ -8,6 +8,8 @@ from typing import Any, Tuple, Union
 
 from gdal_extras.gdal_convert import cli_entrypoint
 
+WINDOW_SIZE = "550x300"
+
 FILETYPES = (
     ("TIF files", "*.tif .tiff .TIF .TIFF"),
     ("IMG files", "*.img .IMG"),
@@ -41,6 +43,9 @@ class NotebookTab(ttk.Frame):
         io_callbacks: Tuple[Any, Any],
         dtype: tk.StringVar,
         format: tk.StringVar,
+        contrast: tk.IntVar,
+        lower: tk.DoubleVar,
+        upper: tk.DoubleVar,
         **kwargs: Any,
     ) -> None:
         if kwargs:
@@ -52,6 +57,9 @@ class NotebookTab(ttk.Frame):
         self.status = tk.StringVar(self, value="Idle")
         self.dtype = dtype
         self.format = format
+        self.contrast = contrast
+        self.low = lower
+        self.high = upper
         assert len(io_callbacks) == 2
         self.input_callback: Any = io_callbacks[0]
         self.output_callback: Any = io_callbacks[1]
@@ -81,13 +89,17 @@ class NotebookTab(ttk.Frame):
 
         dtype = self.dtype.get()
         outfmt = self.format.get()
+        do_contrast = bool(self.contrast.get())
+        lower = self.low.get()
+        upper = self.high.get()
+
         if outfmt in DRIVER_MAP:
             outfmt = DRIVER_MAP[outfmt]
         self.status.set("Processing")
         self.statusval.config(bg=STATUS_COLORS["Processing"])
 
         try:
-            cli_entrypoint(inpath, outpath, outfmt, dtype)
+            cli_entrypoint(inpath, outpath, outfmt, dtype, do_contrast, lower, upper)
             # Set status to done and clear boxes
             self.status.set("Idle")
             self.statusval.config(bg=STATUS_COLORS["Idle"])
@@ -142,6 +154,9 @@ class OptionsTab(ttk.Frame):
         # Set up options
         self.dtype = tk.StringVar(value="Native")
         self.format = tk.StringVar(value="Native")
+        self.contrast = tk.IntVar(value=0)
+        self.low = tk.DoubleVar(value=2.0)
+        self.upper = tk.DoubleVar(value=98.0)
 
         self.create_widgets()
 
@@ -165,17 +180,42 @@ class OptionsTab(ttk.Frame):
         label.pack(side="top")
 
         bitlbl = tk.Label(self, text="DType")
-        bitlbl.place(relx=0.4, rely=0.3, anchor=tk.CENTER)
+        bitlbl.place(relx=0.5, rely=0.35, anchor=tk.CENTER)
 
         fmtlbl = tk.Label(self, text="Format")
-        fmtlbl.place(relx=0.6, rely=0.3, anchor=tk.CENTER)
+        fmtlbl.place(relx=0.7, rely=0.35, anchor=tk.CENTER)
+
+        self.lowerbox = tk.Text(self, height=1, width=2)
+        self.lowerbox.place(relx=0.25, rely=0.6, anchor=tk.CENTER)
+
+        self.upperbox = tk.Text(self, height=1, width=2)
+        self.upperbox.place(relx=0.35, rely=0.6, anchor=tk.CENTER)
+
+        self.lowerbox.insert(tk.END, str(self.low.get()))
+        self.upperbox.insert(tk.END, str(self.upper.get()))
+
+        self.lowerbox.configure(state="disabled")
+        self.upperbox.configure(state="disabled")
+
+        def lock_fields() -> None:
+            if self.contrast.get():
+                self.lowerbox.configure(state="normal")
+                self.upperbox.configure(state="normal")
+            else:
+                self.lowerbox.configure(state="disabled")
+                self.upperbox.configure(state="disabled")
+
+        contrastlbl = tk.Checkbutton(
+            self, text=" Enhancement", variable=self.contrast, command=lock_fields
+        )
+        contrastlbl.place(relx=0.3, rely=0.35, anchor=tk.CENTER)
 
         # Create Dropdown menu
         bitopts = tk.OptionMenu(self, self.dtype, *bitres_opts)
-        bitopts.place(relx=0.4, rely=0.6, anchor=tk.CENTER)
+        bitopts.place(relx=0.5, rely=0.6, anchor=tk.CENTER)
 
         outfmtopts = tk.OptionMenu(self, self.format, *outfmt_opts)
-        outfmtopts.place(relx=0.6, rely=0.6, anchor=tk.CENTER)
+        outfmtopts.place(relx=0.7, rely=0.6, anchor=tk.CENTER)
 
 
 def main() -> None:
@@ -183,25 +223,37 @@ def main() -> None:
     # Root window
     root = tk.Tk()
     root.title("Converter")
-    root.resizable(True, False)
-    root.geometry("550x250")
+    root.resizable(True, True)
+    root.geometry(WINDOW_SIZE)
 
     tab_parent = ttk.Notebook(root)
 
+    # Create tabs
     opt_tab = OptionsTab(root)
+
     file_tab = NotebookTab(
         tab_parent,
         (fd.askopenfilename, fd.asksaveasfilename),
         opt_tab.dtype,
         opt_tab.format,
+        opt_tab.contrast,
+        opt_tab.low,
+        opt_tab.upper,
     )
     dir_tab = NotebookTab(
-        tab_parent, (fd.askdirectory, fd.askdirectory), opt_tab.dtype, opt_tab.format
+        tab_parent,
+        (fd.askdirectory, fd.askdirectory),
+        opt_tab.dtype,
+        opt_tab.format,
+        opt_tab.contrast,
+        opt_tab.low,
+        opt_tab.upper,
     )
+
     tab_parent.add(file_tab, text="File")
     tab_parent.add(dir_tab, text="Directory")
     tab_parent.pack(expand=1, fill="both")
-    opt_tab.pack(side="bottom", fill="both", expand=True)
+    opt_tab.pack(side="bottom", fill="both", expand=True, pady=10)
 
     root.mainloop()
 
