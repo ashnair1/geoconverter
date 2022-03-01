@@ -29,11 +29,10 @@ jobs:
     - name: Build distribution
       run: |
         pyinstaller --onefile gdal_extras/app.py
-        ls
-        ls gdal_extras/
+        ls dist/
 
     - name: Upload artifact
       uses: actions/upload-artifact@v2
       with:
         name: app
-        path: gdal-extras/gdal-extras/dist/app
+        path: dist/app
