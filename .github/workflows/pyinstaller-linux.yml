@@ -30,7 +30,7 @@ jobs:
       run: |
         pyinstaller --onefile gdal_extras/app.py
         ls
-        ls gdal-extras/
+        ls gdal_extras/
 
     - name: Upload artifact
       uses: actions/upload-artifact@v2
