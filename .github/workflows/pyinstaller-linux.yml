@@ -18,7 +18,7 @@ jobs:
     - uses: actions/setup-python@v2
       name: Install Python
       with:
-        python-version: '3.6'
+        python-version: '3.7'
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -26,12 +26,12 @@ jobs:
         sudo apt-get update
         sudo apt-get install gdal-bin libgdal-dev
         pip install GDAL numpy pyinstaller
-        python -c "from osgeo import gdal"
     - name: Build distribution
       run: |
         pyinstaller --onefile gdal_extras/app.py
 
-    - uses: actions/upload-artifact@v2
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
       with:
         name: app
-        path: gdal_extras/dist/linux
+        path: gdal_extras/dist/app
