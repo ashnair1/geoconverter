@@ -55,8 +55,16 @@ jobs:
       run: |
         pyinstaller --onefile gdal_extras/app.py
 
-    - name: Upload artifact
+    - name: Upload artifact (Linux)
       uses: actions/upload-artifact@v2
       with:
         name: app
         path: dist/app
+      if: ${{ runner.os == 'Linux' }}
+
+    - name: Upload artifact (Windows)
+      uses: actions/upload-artifact@v2
+      with:
+        name: app.exe
+        path: dist\app.exe
+      if: ${{ runner.os == 'Windows' }}
