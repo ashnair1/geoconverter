@@ -83,6 +83,11 @@ class NotebookTab(ttk.Frame):
             path = os.path.abspath(_output)
             self.opath.set(path)
 
+    def change_status(self, status_msg: str) -> None:
+        self.status.set(status_msg)
+        self.statusval.config(text=status_msg, bg=STATUS_COLORS[status_msg])
+        self.update()
+
     def convert(self) -> None:
         inpath = self.ipath.get()
         outpath = self.opath.get()
@@ -95,19 +100,16 @@ class NotebookTab(ttk.Frame):
 
         if outfmt in DRIVER_MAP:
             outfmt = DRIVER_MAP[outfmt]
-        self.status.set("Processing")
-        self.statusval.config(bg=STATUS_COLORS["Processing"])
+
+        self.change_status("Processing")
 
         try:
             cli_entrypoint(inpath, outpath, outfmt, dtype, do_contrast, lower, upper)
-            # Set status to done and clear boxes
-            self.status.set("Idle")
-            self.statusval.config(bg=STATUS_COLORS["Idle"])
+            self.change_status("Idle")
             self.ipath.set("")
             self.opath.set("")
         except Exception:
-            self.status.set("ERROR")
-            self.statusval.config(bg=STATUS_COLORS["ERROR"])
+            self.change_status("ERROR")
             showerror(
                 title="Error",
                 message="An unexpected error occurred."
@@ -121,7 +123,7 @@ class NotebookTab(ttk.Frame):
         statuslbl = tk.Label(self, text="Status:")
         statuslbl.place(relx=0.7, rely=0.7, anchor="e")
         self.statusval = tk.Label(self, textvariable=self.status)
-        self.statusval.config(bg="light gray")
+        self.statusval.config(bg=STATUS_COLORS[self.status.get()])
         self.statusval.place(relx=0.85, rely=0.7, anchor="e")
 
         inputpath = tk.Entry(self, textvariable=self.ipath)
