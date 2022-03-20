@@ -1,3 +1,4 @@
+import abc
 import os
 import tkinter as tk
 import traceback
@@ -23,7 +24,7 @@ DRIVER_MAP = {"JPEG2000": "JP2OpenJPEG", "IMG": "HFA"}
 STATUS_COLORS = {"Idle": "light gray", "Processing": "light green", "ERROR": "red"}
 
 
-def showtraceback(widget: "NotebookTab", msg: str) -> None:
+def showtraceback(widget: "DefaultTab", msg: str) -> None:
     root: Union[tk.Tk, tk.Toplevel] = widget.winfo_toplevel()
     errWindow = tk.Toplevel(root)
     errWindow.title("Traceback")
@@ -36,30 +37,19 @@ def showtraceback(widget: "NotebookTab", msg: str) -> None:
     T.configure(state="disabled")
 
 
-class NotebookTab(ttk.Frame):
+class DefaultTab(ttk.Frame):
     def __init__(
-        self,
-        master: ttk.Notebook,
-        io_callbacks: Tuple[Any, Any],
-        dtype: tk.StringVar,
-        format: tk.StringVar,
-        contrast: tk.IntVar,
-        lower: tk.DoubleVar,
-        upper: tk.DoubleVar,
-        **kwargs: Any,
-    ) -> None:
+        self, master: ttk.Notebook, io_callbacks: Tuple[Any, Any], **kwargs: Any
+    ):
         if kwargs:
             super().__init__(master, **kwargs)
         else:
             super().__init__(master)
+
         self.ipath = tk.StringVar(self)
         self.opath = tk.StringVar(self)
         self.status = tk.StringVar(self, value="Idle")
-        self.dtype = dtype
-        self.format = format
-        self.contrast = contrast
-        self.low = lower
-        self.high = upper
+
         assert len(io_callbacks) == 2
         self.input_callback: Any = io_callbacks[0]
         self.output_callback: Any = io_callbacks[1]
@@ -87,6 +77,60 @@ class NotebookTab(ttk.Frame):
         self.status.set(status_msg)
         self.statusval.config(text=status_msg, bg=STATUS_COLORS[status_msg])
         self.update()
+
+    def create_widgets(self) -> None:
+
+        statuslbl = tk.Label(self, text="Status:")
+        statuslbl.place(relx=0.7, rely=0.7, anchor="e")
+        self.statusval = tk.Label(self, textvariable=self.status)
+        self.statusval.config(bg=STATUS_COLORS[self.status.get()])
+        self.statusval.place(relx=0.85, rely=0.7, anchor="e")
+
+        inputpath = tk.Entry(self, textvariable=self.ipath)
+        inputpath.update()
+        inputpath.focus_set()
+        inputpath.place(y=10, x=10, relwidth=0.70, height=20)
+
+        outputpath = tk.Entry(self, textvariable=self.opath)
+        outputpath.update()
+        outputpath.focus_set()
+        outputpath.place(y=50, x=10, relwidth=0.70, height=20)
+
+        # Buttons
+        open_input_button = ttk.Button(self, text="Input", command=self.open_input)
+        open_output_button = ttk.Button(self, text="Output", command=self.open_output)
+        convert_button = ttk.Button(self, text="Convert", command=self.convert)
+
+        open_input_button.pack(anchor="e", padx=20, pady=10)
+        open_output_button.pack(anchor="e", padx=20, pady=10)
+        convert_button.place(relx=0.3, rely=0.7, anchor=tk.CENTER)
+
+    @abc.abstractmethod
+    def convert(self) -> None:
+        pass
+
+
+class NotebookTab(DefaultTab):
+    def __init__(
+        self,
+        master: ttk.Notebook,
+        io_callbacks: Tuple[Any, Any],
+        dtype: tk.StringVar,
+        format: tk.StringVar,
+        contrast: tk.IntVar,
+        lower: tk.DoubleVar,
+        upper: tk.DoubleVar,
+        **kwargs: Any,
+    ) -> None:
+        self.dtype = dtype
+        self.format = format
+        self.contrast = contrast
+        self.low = lower
+        self.high = upper
+        if kwargs:
+            super().__init__(master, io_callbacks, **kwargs)
+        else:
+            super().__init__(master, io_callbacks)
 
     def convert(self) -> None:
         inpath = self.ipath.get()
@@ -118,32 +162,34 @@ class NotebookTab(ttk.Frame):
             showtraceback(self, msg=traceback.format_exc())
             raise
 
-    def create_widgets(self) -> None:
 
-        statuslbl = tk.Label(self, text="Status:")
-        statuslbl.place(relx=0.7, rely=0.7, anchor="e")
-        self.statusval = tk.Label(self, textvariable=self.status)
-        self.statusval.config(bg=STATUS_COLORS[self.status.get()])
-        self.statusval.place(relx=0.85, rely=0.7, anchor="e")
+class DEMTab(DefaultTab):
+    def __init__(self, master: ttk.Notebook, io_callbacks: Tuple[Any, Any]) -> None:
+        super().__init__(master, io_callbacks)
 
-        inputpath = tk.Entry(self, textvariable=self.ipath)
-        inputpath.update()
-        inputpath.focus_set()
-        inputpath.place(y=10, x=10, relwidth=0.70, height=20)
+    def convert(self) -> None:
+        inpath = self.ipath.get()
+        outpath = self.opath.get()
 
-        outputpath = tk.Entry(self, textvariable=self.opath)
-        outputpath.update()
-        outputpath.focus_set()
-        outputpath.place(y=50, x=10, relwidth=0.70, height=20)
+        self.change_status("Processing")
 
-        # Buttons
-        open_input_button = ttk.Button(self, text="Input", command=self.open_input)
-        open_output_button = ttk.Button(self, text="Output", command=self.open_output)
-        convert_button = ttk.Button(self, text="Convert", command=self.convert)
-
-        open_input_button.pack(anchor="e", padx=20, pady=10)
-        open_output_button.pack(anchor="e", padx=20, pady=10)
-        convert_button.place(relx=0.3, rely=0.7, anchor=tk.CENTER)
+        try:
+            cmd = f"ctb-tile -o {outpath} {inpath}"
+            os.system(cmd)
+            cmd = f"ctb-tile -l -o {outpath} {inpath}"
+            os.system(cmd)
+            self.change_status("Idle")
+            self.ipath.set("")
+            self.opath.set("")
+        except Exception:
+            self.change_status("ERROR")
+            showerror(
+                title="Error",
+                message="An unexpected error occurred."
+                "Close window or press OK to view traceback",
+            )
+            showtraceback(self, msg=traceback.format_exc())
+            raise
 
 
 class OptionsTab(ttk.Frame):
@@ -252,8 +298,11 @@ def main() -> None:
         opt_tab.upper,
     )
 
+    dem_tab = DEMTab(tab_parent, (fd.askopenfilename, fd.askdirectory))
+
     tab_parent.add(file_tab, text="File")
     tab_parent.add(dir_tab, text="Directory")
+    tab_parent.add(dem_tab, text="DEM")
     tab_parent.pack(expand=1, fill="both")
     opt_tab.pack(side="bottom", fill="both", expand=True, pady=10)
 
