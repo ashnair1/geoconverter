@@ -25,14 +25,13 @@ jobs:
         python-version: '3.7'
     - name: Install dependencies (Linux)
       run: |
-        pwd
         python -m pip install --upgrade pip
         sudo apt-add-repository ppa:ubuntugis/ubuntugis-unstable
         sudo apt-get update
         sudo apt-get install gdal-bin libgdal-dev
         pip install GDAL numpy pyinstaller wheel
         export CTB_PATH=/home/runner/work/lib
-        export PATH=$CTB_PATH:$PATH
+        export LD_LIBRARY_PATH=CTB_PATH:$LD_LIBRARY_PATH
         mkdir -p $CTB_PATH
         git clone https://github.com/ashnair1/cesium-terrain-builder.git && \
         cd cesium-terrain-builder && \
