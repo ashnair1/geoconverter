@@ -17,9 +17,9 @@ jobs:
         os: [windows-latest]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
-    - uses: actions/setup-python@v2
+    - uses: actions/setup-python@v3
       name: Install Python
       with:
         python-version: '3.7'
@@ -33,17 +33,18 @@ jobs:
         export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
       if: ${{ runner.os == 'Linux' }}
 
-    # - name: Install conda (Windows)
-    #   uses: conda-incubator/setup-miniconda@v2
-    #   with:
-    #     python-version: 3.7
-    #     channels: conda-forge
-    #     channel-priority: strict
-    #   if: ${{ runner.os == 'Windows' }}
-    # - name: Install conda dependencies (Windows)
-    #   run: |
-    #     conda install gdal pyinstaller
-    #   if: ${{ runner.os == 'Windows' }}
+    - name: Install conda (Windows)
+      uses: conda-incubator/setup-miniconda@v2
+      with:
+        python-version: 3.7
+        channels: conda-forge
+        channel-priority: strict
+      if: ${{ runner.os == 'Windows' }}
+    - name: Install conda dependencies (Windows)
+      run: |
+        conda install gdal pyinstaller
+        where gdalinfo
+      if: ${{ runner.os == 'Windows' }}
     
     - name: Clone Cesium Terrian Builder
       uses: actions/checkout@v3
@@ -54,16 +55,13 @@ jobs:
 
     - name: Install CTB (Linux)
       run: |
-        cd cesium-terrain-builder && \
+        cd cesium-terrain-builder
         mkdir build && cd build && cmake .. && sudo make install
         ctb-tile --version
       if: ${{ runner.os == 'Linux' }}
     
     - name: Install CTB (Windows)
       run: |
-        dir
-        cd ..
-        dir
         cd cesium-terrain-builder
         mkdir build && cd build && cmake .. && make install
         ctb-tile --version
