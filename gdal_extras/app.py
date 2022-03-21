@@ -141,7 +141,7 @@ class NotebookTab(DefaultTab):
         do_contrast = bool(self.contrast.get())
         lower = self.low.get()
         upper = self.high.get()
-
+        assert outfmt not in {"Terrain", "Mesh"}
         if outfmt in DRIVER_MAP:
             outfmt = DRIVER_MAP[outfmt]
 
@@ -164,19 +164,24 @@ class NotebookTab(DefaultTab):
 
 
 class DEMTab(DefaultTab):
-    def __init__(self, master: ttk.Notebook, io_callbacks: Tuple[Any, Any]) -> None:
+    def __init__(
+        self, master: ttk.Notebook, io_callbacks: Tuple[Any, Any], format: tk.StringVar
+    ) -> None:
         super().__init__(master, io_callbacks)
+        self.format = format
 
     def convert(self) -> None:
         inpath = self.ipath.get()
         outpath = self.opath.get()
-
+        outfmt = self.format.get()
+        if outfmt in DRIVER_MAP:
+            outfmt = DRIVER_MAP[outfmt]
         self.change_status("Processing")
 
         try:
-            cmd = f"ctb-tile -o {outpath} {inpath}"
+            cmd = f"ctb-tile -C -f {outfmt} -o {outpath} {inpath}"
             os.system(cmd)
-            cmd = f"ctb-tile -l -o {outpath} {inpath}"
+            cmd = f"ctb-tile -C -l -o {outpath} {inpath}"
             os.system(cmd)
             self.change_status("Idle")
             self.ipath.set("")
@@ -222,7 +227,7 @@ class OptionsTab(ttk.Frame):
             "Float64",
         ]
 
-        outfmt_opts = ["Native", "COG", "GTiff", "JPEG2000", "IMG"]
+        outfmt_opts = ["Native", "COG", "GTiff", "JPEG2000", "IMG", "Terrain", "Mesh"]
         # Create Label
         label = tk.Label(self, text="Options")
         label.pack(side="top")
@@ -298,7 +303,7 @@ def main() -> None:
         opt_tab.upper,
     )
 
-    dem_tab = DEMTab(tab_parent, (fd.askopenfilename, fd.askdirectory))
+    dem_tab = DEMTab(tab_parent, (fd.askopenfilename, fd.askdirectory), opt_tab.format)
 
     tab_parent.add(file_tab, text="File")
     tab_parent.add(dir_tab, text="Directory")
