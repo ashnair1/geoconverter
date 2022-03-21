@@ -45,13 +45,25 @@ jobs:
         conda install gdal pyinstaller
       if: ${{ runner.os == 'Windows' }}
 
-    - name: Install Cesium Terrian Builder
+    - name: Install Cesium Terrian Builder (Linux)
       run: |
         git clone https://github.com/ashnair1/cesium-terrain-builder.git && \
         cd cesium-terrain-builder && \
         git checkout gdal3.4
         mkdir build && cd build && cmake .. && sudo make install
         which gdalinfo
+        ctb-tile --version
+    
+    - name: Install Cesium Terrian Builder (Windows)
+      uses: actions/checkout@v3
+      with:
+        repo: ashnair1/cesium-terrain-builder
+        ref: gdal3.4
+      run: |
+        git clone https://github.com/ashnair1/cesium-terrain-builder.git && \
+        cd cesium-terrain-builder && \
+        git checkout gdal3.4
+        mkdir build && cd build && cmake .. && sudo make install
         ctb-tile --version
 
     - name: Build distribution (Linux)
