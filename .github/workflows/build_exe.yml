@@ -25,11 +25,12 @@ jobs:
         python-version: '3.7'
     - name: Install dependencies (Linux)
       run: |
+        pwd
         python -m pip install --upgrade pip
         sudo apt-add-repository ppa:ubuntugis/ubuntugis-unstable
         sudo apt-get update
         sudo apt-get install gdal-bin libgdal-dev
-        pip install GDAL numpy pyinstaller
+        pip install GDAL numpy pyinstaller wheel
         git clone https://github.com/ashnair1/cesium-terrain-builder.git && \
         cd cesium-terrain-builder && \
         git checkout gdal3.4
