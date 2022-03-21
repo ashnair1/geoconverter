@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - 'v*'
+    branches:
+      - dem
 
 
 jobs:
@@ -12,7 +14,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest]
 
     steps:
     - uses: actions/checkout@v2
@@ -28,6 +30,13 @@ jobs:
         sudo apt-get update
         sudo apt-get install gdal-bin libgdal-dev
         pip install GDAL numpy pyinstaller
+        which gdalinfo
+        git clone https://github.com/ahuarte47/cesium-terrain-builder.git && \
+        cd cesium-terrain-builder && \
+        git checkout gdal3.4
+        cd build && cmake .. && make install
+        ctb-tile --help
+
       if: ${{ runner.os == 'Linux' }}
 
     - name: Install dependencies (Windows)
