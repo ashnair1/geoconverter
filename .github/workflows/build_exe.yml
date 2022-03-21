@@ -53,7 +53,6 @@ jobs:
 
     - name: Install CTB (Linux)
       run: |
-        dir
         cd cesium-terrain-builder && \
         mkdir build && cd build && cmake .. && sudo make install
         ctb-tile --version
@@ -61,6 +60,7 @@ jobs:
     
     - name: Install CTB (Windows)
       run: |
+        dir
         cd cesium-terrain-builder
         mkdir build && cd build && cmake .. && make install
         ctb-tile --version
