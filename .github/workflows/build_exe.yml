@@ -31,10 +31,13 @@ jobs:
         sudo apt-get update
         sudo apt-get install gdal-bin libgdal-dev
         pip install GDAL numpy pyinstaller wheel
+        export CTB_PATH=/home/runner/work/lib
+        export PATH=$CTB_PATH:$PATH
+        mkdir -p $CTB_PATH
         git clone https://github.com/ashnair1/cesium-terrain-builder.git && \
         cd cesium-terrain-builder && \
         git checkout gdal3.4
-        mkdir build && cd build && cmake .. && make install
+        mkdir build && cd build && cmake -DCMAKE_INSTALL_PREFIX=$CTB_PATH .. && make install
         ctb-tile --help
 
       if: ${{ runner.os == 'Linux' }}
