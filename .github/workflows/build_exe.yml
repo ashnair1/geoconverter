@@ -31,7 +31,7 @@ jobs:
         sudo apt-get install gdal-bin libgdal-dev
         pip install GDAL numpy pyinstaller
         which gdalinfo
-        git clone https://github.com/ahuarte47/cesium-terrain-builder.git && \
+        git clone https://github.com/ashnair1/cesium-terrain-builder.git && \
         cd cesium-terrain-builder && \
         git checkout gdal3.4
         cd build && cmake .. && make install
