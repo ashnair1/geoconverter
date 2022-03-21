@@ -31,8 +31,8 @@ jobs:
         sudo apt-get install gdal-bin libgdal-dev
         pip install GDAL numpy pyinstaller wheel
         export CTB_PATH=/home/runner/work/lib
-        export PATH=CTB_PATH:$PATH
-        export LD_LIBRARY_PATH=CTB_PATH:$LD_LIBRARY_PATH
+        export PATH=$CTB_PATH:$PATH
+        export LD_LIBRARY_PATH=$CTB_PATH:$LD_LIBRARY_PATH
         mkdir -p $CTB_PATH
         git clone https://github.com/ashnair1/cesium-terrain-builder.git && \
         cd cesium-terrain-builder && \
