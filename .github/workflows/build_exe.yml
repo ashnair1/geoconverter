@@ -34,7 +34,7 @@ jobs:
         cd cesium-terrain-builder && \
         git checkout gdal3.4
         mkdir build && cd build && cmake .. && sudo make install
-        echo $PATH && echo $LD_LIBRARY_PATH
+        export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
         ctb-tile --help
 
       if: ${{ runner.os == 'Linux' }}
