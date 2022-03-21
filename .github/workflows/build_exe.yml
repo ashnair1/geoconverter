@@ -54,15 +54,15 @@ jobs:
         which gdalinfo
         ctb-tile --version
     
-    - name: Install Cesium Terrian Builder (Windows)
+    - name: Clone Cesium Terrian Builder
       uses: actions/checkout@v3
       with:
         repo: ashnair1/cesium-terrain-builder
         ref: gdal3.4
+
+    - name: Install CTB
       run: |
-        git clone https://github.com/ashnair1/cesium-terrain-builder.git && \
         cd cesium-terrain-builder && \
-        git checkout gdal3.4
         mkdir build && cd build && cmake .. && sudo make install
         ctb-tile --version
 
