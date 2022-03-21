@@ -61,7 +61,8 @@ jobs:
     - name: Install CTB (Windows)
       run: |
         dir
-        cd cesium-terrain-builder
+        cd ..
+        dir
         mkdir build && cd build && cmake .. && make install
         ctb-tile --version
       if: ${{ runner.os == 'Windows' }}
