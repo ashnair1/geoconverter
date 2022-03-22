@@ -69,7 +69,7 @@ jobs:
         $env:GDAL_LIBRARY = "$env:GDAL_LIBRARY_DIR\gdal_i.lib"
         $env:GDAL_INCLUDE_DIR = "$env:CONDA_PREFIX\Library\include"
         cd cesium-terrain-builder
-        mkdir build && cd build && cmake -DGDAL_LIBRARY_DIR=$env:GDAL_LIBRARY_DIR -DGDAL_LIBRARY=$env:GDAL_LIBRARY -DGDAL_INCLUDE_DIR=$env:GDAL_INCLUDE_DIR -G "MinGW Makefiles" .. && dir && make
+        mkdir build && cd build && cmake -DGDAL_LIBRARY_DIR="$env:GDAL_LIBRARY_DIR" -DGDAL_LIBRARY="$env:GDAL_LIBRARY" -DGDAL_INCLUDE_DIR="$env:GDAL_INCLUDE_DIR" -G "MinGW Makefiles" .. && dir && make
         ctb-tile --version
       if: ${{ runner.os == 'Windows' }}
 
