@@ -42,9 +42,9 @@ jobs:
       if: ${{ runner.os == 'Windows' }}
     - name: Install conda dependencies (Windows)
       run: |
+        where msbuild
         conda install gdal pyinstaller
         where gdalinfo
-        where msbuild
       if: ${{ runner.os == 'Windows' }}
     
     - name: Clone Cesium Terrian Builder
