@@ -42,9 +42,7 @@ jobs:
       if: ${{ runner.os == 'Windows' }}
     - name: Install conda dependencies (Windows)
       run: |
-        where msbuild
         conda install gdal pyinstaller
-        where gdalinfo
       if: ${{ runner.os == 'Windows' }}
     
     - name: Clone Cesium Terrian Builder
@@ -64,7 +62,7 @@ jobs:
     - name: Install CTB (Windows)
       run: |
         cd cesium-terrain-builder
-        mkdir build && cd build && cmake .. && dir && make install
+        mkdir build && cd build && cmake .. && dir && MSBuild.exe "Cesium Terrain Builder.sln"
         ctb-tile --version
       if: ${{ runner.os == 'Windows' }}
 
