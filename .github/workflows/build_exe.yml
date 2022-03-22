@@ -42,8 +42,8 @@ jobs:
       if: ${{ runner.os == 'Windows' }}
     - name: Install conda dependencies (Windows)
       run: |
-        echo $ENV:CONDA_PREFIX
-        where.exe conda
+        $env:PATH = "$env:CONDA_PREFIX\Library\lib\;$env:PATH"
+        echo $env:PATH
         conda install gdal pyinstaller
         where.exe gdalinfo
       if: ${{ runner.os == 'Windows' }}
