@@ -42,7 +42,10 @@ jobs:
       if: ${{ runner.os == 'Windows' }}
     - name: Install conda dependencies (Windows)
       run: |
+        echo %PATH%
+        echo %CONDA_PREFIX%
         conda install gdal pyinstaller
+        where gdalinfo
       if: ${{ runner.os == 'Windows' }}
     
     - name: Clone Cesium Terrian Builder
@@ -58,9 +61,13 @@ jobs:
         mkdir build && cd build && cmake .. && sudo make install
         ctb-tile --version
       if: ${{ runner.os == 'Linux' }}
+
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v3
     
     - name: Install CTB (Windows)
       run: |
+        echo %PATH%
         cd cesium-terrain-builder
         mkdir build && cd build && cmake -G "MinGW Makefiles" .. && dir && make
         ctb-tile --version
