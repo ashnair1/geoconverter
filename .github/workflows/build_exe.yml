@@ -42,8 +42,7 @@ jobs:
       if: ${{ runner.os == 'Windows' }}
     - name: Install conda dependencies (Windows)
       run: |
-        $env:PATH = "$env:CONDA_PREFIX\Library\lib\;$env:PATH"
-        echo $env:PATH
+        $env:PATH = "$env:CONDA_PREFIX\Library\lib;$env:PATH"
         conda install gdal pyinstaller
         where.exe gdalinfo
       if: ${{ runner.os == 'Windows' }}
@@ -67,10 +66,8 @@ jobs:
     
     - name: Install CTB (Windows)
       run: |
-        $env:BLEH = $env:CONDA_PREFIXhello 
-        $env:PATH = "C:\Miniconda\envs\test\Library\lib\;$env:PATH"
-        echo $env:path
         echo $ENV:PATH
+        $env:PATH = "$env:CONDA_PREFIX\Library\lib;$env:PATH"
         cd cesium-terrain-builder
         mkdir build && cd build && cmake -G "MinGW Makefiles" .. && dir && make
         ctb-tile --version
