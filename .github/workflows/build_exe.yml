@@ -59,12 +59,13 @@ jobs:
         ctb-tile --version
       if: ${{ runner.os == 'Linux' }}
 
-    # - name: Setup tmate session
-    #   uses: mxschmitt/action-tmate@v3
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v3
     
     - name: Install CTB (Windows)
       run: |
         $env:PATH = "$env:CONDA_PREFIX\Library\lib;$env:PATH"
+        $env:PATH = "$env:CONDA_PREFIX\Library\DLLs;$env:PATH"
         $env:GDAL_LIBRARY_DIR = "C:/Miniconda/envs/test/Library/lib"
         $env:GDAL_LIBRARY = "$env:GDAL_LIBRARY_DIR/gdal_i.lib"
         $env:GDAL_INCLUDE_DIR = "C:/Miniconda/envs/test/Library/include"
