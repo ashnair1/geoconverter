@@ -44,6 +44,7 @@ jobs:
       run: |
         conda install gdal pyinstaller
         where gdalinfo
+        where msbuild
       if: ${{ runner.os == 'Windows' }}
     
     - name: Clone Cesium Terrian Builder
