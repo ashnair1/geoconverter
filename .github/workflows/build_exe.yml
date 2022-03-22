@@ -65,9 +65,9 @@ jobs:
     - name: Install CTB (Windows)
       run: |
         $env:PATH = "$env:CONDA_PREFIX\Library\lib;$env:PATH"
-        $env:GDAL_LIBRARY_DIR = "$env:CONDA_PREFIX\Library\lib"
-        $env:GDAL_LIBRARY = "$env:GDAL_LIBRARY_DIR\gdal_i.lib"
-        $env:GDAL_INCLUDE_DIR = "$env:CONDA_PREFIX\Library\include"
+        $env:GDAL_LIBRARY_DIR = "C:/Miniconda/envs/test/Library/lib/"
+        $env:GDAL_LIBRARY = "$env:GDAL_LIBRARY_DIR/gdal_i.lib"
+        $env:GDAL_INCLUDE_DIR = "$env:CONDA_PREFIX/Library/include"
         cd cesium-terrain-builder
         mkdir build && cd build && cmake -DGDAL_LIBRARY_DIR="$env:GDAL_LIBRARY_DIR" -DGDAL_LIBRARY="$env:GDAL_LIBRARY" -DGDAL_INCLUDE_DIR="$env:GDAL_INCLUDE_DIR" -G "MinGW Makefiles" .. && dir && make
         ctb-tile --version
