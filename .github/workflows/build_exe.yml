@@ -42,8 +42,7 @@ jobs:
       if: ${{ runner.os == 'Windows' }}
     - name: Install conda dependencies (Windows)
       run: |
-        echo $env:path
-        echo $ENV:PATH
+        echo $ENV:CONDA_PREFIX
         where.exe conda
         conda install gdal pyinstaller
         where.exe gdalinfo
@@ -68,8 +67,8 @@ jobs:
     
     - name: Install CTB (Windows)
       run: |
+        $env:BLEH = $env:CONDA_PREFIXhello 
         $env:PATH = "C:\Miniconda\envs\test\Library\lib\;$env:PATH"
-        $Env:PATH = "C:\Miniconda\envs\test\Library\lib\;$Env:PATH"
         echo $env:path
         echo $ENV:PATH
         cd cesium-terrain-builder
