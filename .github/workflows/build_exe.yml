@@ -42,11 +42,9 @@ jobs:
       if: ${{ runner.os == 'Windows' }}
     - name: Install conda dependencies (Windows)
       run: |
-        echo $PATH
-        echo $CONDA_PREFIX
         where.exe conda
         conda install gdal pyinstaller
-        where gdalinfo
+        where.exe gdalinfo
       if: ${{ runner.os == 'Windows' }}
     
     - name: Clone Cesium Terrian Builder
@@ -68,7 +66,6 @@ jobs:
     
     - name: Install CTB (Windows)
       run: |
-        echo $PATH
         $Env:PATH = "C:/Miniconda/envs/test/Library/lib/;$Env:PATH"
         cd cesium-terrain-builder
         mkdir build && cd build && cmake -G "MinGW Makefiles" .. && dir && make
