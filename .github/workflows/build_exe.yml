@@ -66,7 +66,7 @@ jobs:
       run: |
         $env:PATH = "$env:CONDA_PREFIX\Library\lib;$env:PATH"
         $env:PATH = "$env:CONDA_PREFIX\Library\bin;$env:PATH"
-        $env:TCLLIBPATH = "$env:CONDA_PREFIX\Library\lib
+        $env:TCLLIBPATH = "$env:CONDA_PREFIX\Library\lib;$env:TCLLIBPATH"
         echo $env:PATH
         $env:GDAL_LIBRARY_DIR = "C:/Miniconda/envs/test/Library/lib"
         $env:GDAL_LIBRARY = "$env:GDAL_LIBRARY_DIR/gdal_i.lib"
