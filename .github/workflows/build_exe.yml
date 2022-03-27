@@ -69,7 +69,7 @@ jobs:
         $env:GDAL_LIBRARY_DIR = "C:/Miniconda/envs/test/Library/lib"
         $env:GDAL_LIBRARY = "$env:GDAL_LIBRARY_DIR/gdal_i.lib"
         $env:GDAL_INCLUDE_DIR = "C:/Miniconda/envs/test/Library/include"
-        $env:INSTALL_LOCATION = "C:/Miniconda/envs/test/bin"
+        $env:INSTALL_LOCATION = "C:/Miniconda/envs/test/"
         cd cesium-terrain-builder
         mkdir build
         cd build
