@@ -63,6 +63,7 @@ jobs:
     #   uses: mxschmitt/action-tmate@v3
     
     - name: Install CTB (Windows)
+      uses: ilammy/msvc-dev-cmd@v1
       run: |
         $env:PATH = "$env:CONDA_PREFIX\Library\lib;$env:PATH"
         $env:PATH = "$env:CONDA_PREFIX\Library\bin;$env:PATH"
