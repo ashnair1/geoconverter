@@ -75,6 +75,9 @@ jobs:
         cd build
         cmake -DCMAKE_INSTALL_PREFIX="$env:INSTALL_LOCATION" -DGDAL_LIBRARY_DIR="$env:GDAL_LIBRARY_DIR" -DGDAL_LIBRARY="$env:GDAL_LIBRARY" -DGDAL_INCLUDE_DIR="$env:GDAL_INCLUDE_DIR" -G "NMake Makefiles" .. 
         nmake
+        $env:PATH = "D:\a\gdal-extras\gdal-extras\cesium-terrain-builder\build\tools;$env:PATH"
+        echo $env:PATH
+        ctb-info
       if: ${{ runner.os == 'Windows' }}
     
     - name: Setup tmate session
