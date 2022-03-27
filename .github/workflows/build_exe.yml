@@ -58,9 +58,6 @@ jobs:
         mkdir build && cd build && cmake .. && sudo make install
         ctb-tile --version
       if: ${{ runner.os == 'Linux' }}
-
-    # - name: Setup tmate session
-    #   uses: mxschmitt/action-tmate@v3
     
     - uses: ilammy/msvc-dev-cmd@v1
     - name: Install CTB (Windows)
@@ -78,9 +75,10 @@ jobs:
         cd build
         cmake -DCMAKE_INSTALL_PREFIX="$env:INSTALL_LOCATION" -DGDAL_LIBRARY_DIR="$env:GDAL_LIBRARY_DIR" -DGDAL_LIBRARY="$env:GDAL_LIBRARY" -DGDAL_INCLUDE_DIR="$env:GDAL_INCLUDE_DIR" -G "NMake Makefiles" .. 
         nmake
-        dir
-        ctb-tile --version
       if: ${{ runner.os == 'Windows' }}
+    
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v3
 
     - name: Build distribution (Linux)
       run: |
