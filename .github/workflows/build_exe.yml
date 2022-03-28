@@ -42,7 +42,7 @@ jobs:
       if: ${{ runner.os == 'Windows' }}
     - name: Install conda dependencies (Windows)
       run: |
-        conda install -n base gdal pyinstaller
+        conda install gdal pyinstaller
       if: ${{ runner.os == 'Windows' }}
     
     - name: Clone Cesium Terrian Builder
@@ -67,6 +67,7 @@ jobs:
         cd build
         cmake -G "NMake Makefiles" .. 
         nmake
+        set PATH = "%cd%\src;%cd%\tools;%PATH%"
       if: ${{ runner.os == 'Windows' }}
     
     - name: Setup tmate session
