@@ -67,7 +67,7 @@ jobs:
         cd build
         cmake -G "NMake Makefiles" .. 
         nmake
-        set PATH = "%cd%\src;%cd%\tools;%PATH%"
+        set PATH="%cd%\src;%cd%\tools;%PATH%"
       if: ${{ runner.os == 'Windows' }}
     
     - name: Setup tmate session
