@@ -47,6 +47,7 @@ jobs:
       run: |
         conda install gdal pyinstaller
         $env:PROJ_LIB="$env:CONDA_PREFIX\Library\share\proj"
+        echo $env:PROJ_LIB
       if: ${{ runner.os == 'Windows' }}
     
     # - name: Setup tmate session
@@ -67,6 +68,7 @@ jobs:
     
     - name: Build distribution (Linux)
       run: |
+        echo $env:PROJ_LIB
         pyinstaller --clean --onedir gdal_extras/app.py --add-data "cesium-terrain-builder/build/tools/ctb-tile:." --add-data "$PROJ_LIB:proj" --add-binary "cesium-terrain-builder/build/src/libctb.so:."
         tar -czf dist/app.tar.gz dist/app/
       if: ${{ runner.os == 'Linux' }}
