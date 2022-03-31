@@ -58,7 +58,6 @@ jobs:
     - name: Install CTB (Windows)
       run: |
         mkdir cesium-terrain-builder\build
-        cd build
         cmake -DCMAKE_BUILD_TYPE=Release -G "NMake Makefiles" -S cesium-terrain-builder -B cesium-terrain-builder\build && cmake --build cesium-terrain-builder\build
       if: ${{ runner.os == 'Windows' }}
     
