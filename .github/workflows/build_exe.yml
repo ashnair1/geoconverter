@@ -5,7 +5,7 @@ on:
     tags:
       - 'v*'
     branches:
-      - dem2
+      - dem
 
 
 jobs:
@@ -14,7 +14,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [windows-2019]
 
     steps:
     - uses: actions/checkout@v3
@@ -35,9 +35,6 @@ jobs:
         export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
         export PROJ_LIB=/usr/share/proj
       if: ${{ runner.os == 'Linux' }}
-    
-    - name: Setup tmate session
-      uses: mxschmitt/action-tmate@v3
 
     - name: Install conda (Windows)
       uses: conda-incubator/setup-miniconda@v2
@@ -65,29 +62,31 @@ jobs:
         cmake -DCMAKE_BUILD_TYPE=Release -G "NMake Makefiles" -S cesium-terrain-builder -B cesium-terrain-builder\build && cmake --build cesium-terrain-builder\build
       if: ${{ runner.os == 'Windows' }}
     
-    - name: Setup tmate session
-      uses: mxschmitt/action-tmate@v3
-
     - name: Build distribution (Linux)
       run: |
         pyinstaller --clean --onedir gdal_extras/app.py --add-data "cesium-terrain-builder/build/tools/ctb-tile:." --add-data "$PROJ_LIB:proj" --add-binary "cesium-terrain-builder/build/src/libctb.so:."
+        tar -czf dist/app.tar.gz dist/app/
       if: ${{ runner.os == 'Linux' }}
     
     - name: Build distribution (Windows)
       run: |
         pyinstaller --clean --onedir gdal_extras/app.py --add-data "cesium-terrain-builder\build\tools\ctb-tile.exe;." --add-data "%PROJ_LIB%;proj" --add-binary "cesium-terrain-builder\build\src\ctb.dll;."
+        powershell Compress-Archive dist\app dist\app.zip
       if: ${{ runner.os == 'Windows' }}
+
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v3
 
     - name: Upload artifact (Linux)
       uses: actions/upload-artifact@v2
       with:
         name: app
-        path: dist/app
+        path: dist/app.zip
       if: ${{ runner.os == 'Linux' }}
 
     - name: Upload artifact (Windows)
       uses: actions/upload-artifact@v2
       with:
         name: app.exe
-        path: dist\app.exe
+        path: dist\app.zip
       if: ${{ runner.os == 'Windows' }}
