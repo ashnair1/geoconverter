@@ -79,10 +79,9 @@ jobs:
       run: |
         echo "Powershell test"
         echo $env:PROJ_LIB
-        $env:PROJ_LIB="$env:CONDA_PREFIX\Library\share\proj"
         echo $env:PROJ_LIB
         pyinstaller --clean --onedir gdal_extras/app.py --add-data "cesium-terrain-builder\build\tools\ctb-tile.exe;." --add-data "$env:PROJ_LIB;proj" --add-binary "cesium-terrain-builder\build\src\ctb.dll;."
-        powershell Compress-Archive dist\app dist\app.zip
+        Compress-Archive dist\app dist\app.zip
       if: ${{ runner.os == 'Windows' }}
 
     - name: Setup tmate session
