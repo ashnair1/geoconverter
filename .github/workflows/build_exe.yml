@@ -43,10 +43,13 @@ jobs:
         channels: conda-forge
         channel-priority: strict
       if: ${{ runner.os == 'Windows' }}
-    - name: Install conda dependencies (Windows)
+    - name: Install dependencies (Windows)
       run: |
         conda install gdal pyinstaller
       if: ${{ runner.os == 'Windows' }}
+    
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v3
 
     - name: Install CTB (Linux)
       run: |
