@@ -46,7 +46,7 @@ jobs:
     - name: Install dependencies (Windows)
       run: |
         conda install gdal pyinstaller
-        $env:PROJ_LIB=$env:CONDA_PREFIX\Library\share\proj
+        $env:PROJ_LIB="$env:CONDA_PREFIX\Library\share\proj"
       if: ${{ runner.os == 'Windows' }}
     
     - name: Setup tmate session
