@@ -5,7 +5,7 @@ on:
     tags:
       - 'v*'
     branches:
-      - dem2
+      - dem
 
 
 jobs:
@@ -14,7 +14,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-2019]
+        os: [ubuntu-latest]
 
     steps:
     - uses: actions/checkout@v3
@@ -34,6 +34,9 @@ jobs:
         python -m pip install GDAL numpy pyinstaller wheel
         export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
       if: ${{ runner.os == 'Linux' }}
+    
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v3
 
     - name: Install conda (Windows)
       uses: conda-incubator/setup-miniconda@v2
