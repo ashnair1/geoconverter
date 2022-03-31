@@ -49,8 +49,8 @@ jobs:
         $env:PROJ_LIB="$env:CONDA_PREFIX\Library\share\proj"
       if: ${{ runner.os == 'Windows' }}
     
-    - name: Setup tmate session
-      uses: mxschmitt/action-tmate@v3
+    # - name: Setup tmate session
+    #   uses: mxschmitt/action-tmate@v3
 
     - name: Install CTB (Linux)
       run: |
