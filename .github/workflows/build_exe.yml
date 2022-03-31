@@ -46,10 +46,6 @@ jobs:
     - name: Install dependencies (Windows)
       run: |
         conda install gdal pyinstaller
-        echo "Powershell test"
-        echo $env:PROJ_LIB
-        $env:PROJ_LIB="$env:CONDA_PREFIX\Library\share\proj"
-        echo $env:PROJ_LIB
       if: ${{ runner.os == 'Windows' }}
     
     # - name: Setup tmate session
@@ -70,16 +66,13 @@ jobs:
     
     - name: Build distribution (Linux)
       run: |
-        echo $env:PROJ_LIB
         pyinstaller --clean --onedir gdal_extras/app.py --add-data "cesium-terrain-builder/build/tools/ctb-tile:." --add-data "$PROJ_LIB:proj" --add-binary "cesium-terrain-builder/build/src/libctb.so:."
         tar -czf dist/app.tar.gz dist/app/
       if: ${{ runner.os == 'Linux' }}
     
     - name: Build distribution (Windows)
       run: |
-        echo "Powershell test"
-        echo $env:PROJ_LIB
-        echo $env:PROJ_LIB
+        $env:PROJ_LIB="$env:CONDA_PREFIX\Library\share\proj"
         pyinstaller --clean --onedir gdal_extras/app.py --add-data "cesium-terrain-builder\build\tools\ctb-tile.exe;." --add-data "$env:PROJ_LIB;proj" --add-binary "cesium-terrain-builder\build\src\ctb.dll;."
         Compress-Archive dist\app dist\app.zip
       if: ${{ runner.os == 'Windows' }}
