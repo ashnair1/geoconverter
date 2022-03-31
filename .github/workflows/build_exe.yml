@@ -5,7 +5,7 @@ on:
     tags:
       - 'v*'
     branches:
-      - dem
+      - dem2
 
 
 jobs:
@@ -80,13 +80,13 @@ jobs:
     - name: Upload artifact (Linux)
       uses: actions/upload-artifact@v3
       with:
-        name: app
-        path: dist/app.zip
+        name: gdal_converter_linux
+        path: dist/app.tar.gz
       if: ${{ runner.os == 'Linux' }}
 
     - name: Upload artifact (Windows)
       uses: actions/upload-artifact@v3
       with:
-        name: app.exe
+        name: gdal_converter_win64
         path: dist\app.zip
       if: ${{ runner.os == 'Windows' }}
