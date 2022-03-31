@@ -46,6 +46,8 @@ jobs:
     - name: Install dependencies (Windows)
       run: |
         conda install gdal pyinstaller
+        echo "Powershell test"
+        echo $env:PROJ_LIB
         $env:PROJ_LIB="$env:CONDA_PREFIX\Library\share\proj"
         echo $env:PROJ_LIB
       if: ${{ runner.os == 'Windows' }}
@@ -75,10 +77,6 @@ jobs:
     
     - name: Build distribution (Windows)
       run: |
-        echo "CMD test"
-        echo %PROJ_LIB%
-        set PROJ_LIB=%CONDA_PREFIX%\Library\share\proj
-        echo %PROJ_LIB%
         echo "Powershell test"
         echo $env:PROJ_LIB
         $env:PROJ_LIB="$env:CONDA_PREFIX\Library\share\proj"
