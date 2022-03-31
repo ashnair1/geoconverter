@@ -5,7 +5,7 @@ on:
     tags:
       - 'v*'
     branches:
-      - dem
+      - dem2
 
 
 jobs:
