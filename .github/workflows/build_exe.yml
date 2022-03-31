@@ -33,7 +33,6 @@ jobs:
         sudo apt-get install gdal-bin libgdal-dev
         python -m pip install GDAL numpy pyinstaller wheel
         export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
-        export PROJ_LIB=/usr/share/proj
       if: ${{ runner.os == 'Linux' }}
 
     - name: Install conda (Windows)
@@ -66,6 +65,7 @@ jobs:
     
     - name: Build distribution (Linux)
       run: |
+        export PROJ_LIB=/usr/share/proj
         pyinstaller --clean --onedir gdal_extras/app.py --add-data "cesium-terrain-builder/build/tools/ctb-tile:." --add-data "$PROJ_LIB:proj" --add-binary "cesium-terrain-builder/build/src/libctb.so:."
         tar -czf dist/app.tar.gz dist/app/
       if: ${{ runner.os == 'Linux' }}
