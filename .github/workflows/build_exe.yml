@@ -18,6 +18,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+      with:
+        submodules: recursive
 
     - uses: actions/setup-python@v3
       name: Install Python
@@ -44,30 +46,19 @@ jobs:
       run: |
         conda install gdal pyinstaller
       if: ${{ runner.os == 'Windows' }}
-    
-    - name: Clone Cesium Terrian Builder
-      uses: actions/checkout@v3
-      with:
-        repository: ashnair1/cesium-terrain-builder
-        ref: gdal3.4
-        path: cesium-terrain-builder
 
     - name: Install CTB (Linux)
       run: |
-        cd cesium-terrain-builder
-        mkdir build && cd build && cmake .. && sudo make install
-        ctb-tile --version
+        mkdir cesium-terrain-builder/build
+        cmake -DCMAKE_BUILD_TYPE=Release -S cesium-terrain-builder -B cesium-terrain-builder/build && cmake --build cesium-terrain-builder/build 
       if: ${{ runner.os == 'Linux' }}
     
     - uses: ilammy/msvc-dev-cmd@v1
     - name: Install CTB (Windows)
       run: |
-        cd cesium-terrain-builder
-        mkdir build
+        mkdir cesium-terrain-builder\build
         cd build
-        cmake -G "NMake Makefiles" .. 
-        nmake
-        set PATH="%cd%\src;%cd%\tools;%PATH%"
+        cmake -DCMAKE_BUILD_TYPE=Release -G "NMake Makefiles" -S cesium-terrain-builder -B cesium-terrain-builder\build && cmake --build cesium-terrain-builder\build
       if: ${{ runner.os == 'Windows' }}
     
     - name: Setup tmate session
@@ -75,12 +66,12 @@ jobs:
 
     - name: Build distribution (Linux)
       run: |
-        pyinstaller --onefile gdal_extras/app.py --add-binary "libctb.so:lib"
+        pyinstaller --clean --onedir gdal_extras/app.py --add-data "cesium-terrain-builder/build/tools/ctb-tile:." --add-data "$PROJ_LIB:proj" --add-binary "cesium-terrain-builder/build/src/libctb.so:."
       if: ${{ runner.os == 'Linux' }}
     
     - name: Build distribution (Windows)
       run: |
-        pyinstaller --onefile gdal_extras/app.py --add-binary "libctb.so;lib"
+        pyinstaller --clean --onedir gdal_extras/app.py --add-data "cesium-terrain-builder\build\tools\ctb-tile.exe;." --add-data "%PROJ_LIB%;proj" --add-binary "cesium-terrain-builder\build\src\ctb.dll;."
       if: ${{ runner.os == 'Windows' }}
 
     - name: Upload artifact (Linux)

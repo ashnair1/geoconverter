@@ -12,10 +12,7 @@ from gdal_extras.gdal_convert import cli_entrypoint
 
 if getattr(sys, "frozen", False):
     application_path = getattr(sys, "_MEIPASS", os.path.dirname(sys.executable))
-    # print(application_path)
-    # print(sys.executable)
-    if not os.environ.get("PROJ_LIB"):
-        os.environ["PROJ_LIB"] = os.path.join(application_path, "proj")
+    os.environ["PROJ_LIB"] = os.path.join(application_path, "proj")
     os.chdir(application_path)
 
 WINDOW_SIZE = "550x300"
