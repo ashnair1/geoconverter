@@ -73,7 +73,7 @@ jobs:
     
     - name: Build distribution (Windows)
       run: |
-        pyinstaller --clean --onedir gdal_extras/app.py --add-data "cesium-terrain-builder\build\tools\ctb-tile.exe;." --add-data "%PROJ_LIB%;proj" --add-binary "cesium-terrain-builder\build\src\ctb.dll;."
+        pyinstaller --clean --onedir gdal_extras/app.py --add-data "cesium-terrain-builder\build\tools\ctb-tile.exe;." --add-data "$env:PROJ_LIB;proj" --add-binary "cesium-terrain-builder\build\src\ctb.dll;."
         powershell Compress-Archive dist\app dist\app.zip
       if: ${{ runner.os == 'Windows' }}
 
