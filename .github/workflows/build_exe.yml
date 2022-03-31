@@ -14,7 +14,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [windows-latest, ubuntu-latest]
 
     steps:
     - uses: actions/checkout@v3
@@ -46,9 +46,6 @@ jobs:
       run: |
         conda install gdal pyinstaller
       if: ${{ runner.os == 'Windows' }}
-    
-    # - name: Setup tmate session
-    #   uses: mxschmitt/action-tmate@v3
 
     - name: Install CTB (Linux)
       run: |
@@ -81,14 +78,14 @@ jobs:
       uses: mxschmitt/action-tmate@v3
 
     - name: Upload artifact (Linux)
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: app
         path: dist/app.zip
       if: ${{ runner.os == 'Linux' }}
 
     - name: Upload artifact (Windows)
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: app.exe
         path: dist\app.zip
