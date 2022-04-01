@@ -6,7 +6,7 @@ repos:
              additional_dependencies: ["colorama>=0.4.3"]
 
     -   repo: https://github.com/psf/black
-        rev: 22.1.0
+        rev: 22.3.0
         hooks:
         -   id: black
             args: [--skip-magic-trailing-comma]
@@ -18,7 +18,7 @@ repos:
             entry: bash -c 'exec env PYFLAKES_NODOCTEST=TRUE'
 
     -   repo: https://github.com/pre-commit/mirrors-mypy
-        rev: v0.931
+        rev: v0.942
         hooks:
         -   id: mypy
             args: [--strict, --ignore-missing-imports, --show-error-codes]

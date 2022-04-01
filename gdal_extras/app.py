@@ -1,4 +1,6 @@
+import abc
 import os
+import sys
 import tkinter as tk
 import traceback
 from tkinter import filedialog as fd
@@ -7,6 +9,11 @@ from tkinter.messagebox import showerror
 from typing import Any, Tuple, Union
 
 from gdal_extras.gdal_convert import cli_entrypoint
+
+if getattr(sys, "frozen", False):
+    application_path = getattr(sys, "_MEIPASS", os.path.dirname(sys.executable))
+    os.environ["PROJ_LIB"] = os.path.join(application_path, "proj")
+    os.chdir(application_path)
 
 WINDOW_SIZE = "550x300"
 
@@ -23,7 +30,7 @@ DRIVER_MAP = {"JPEG2000": "JP2OpenJPEG", "IMG": "HFA"}
 STATUS_COLORS = {"Idle": "light gray", "Processing": "light green", "ERROR": "red"}
 
 
-def showtraceback(widget: "NotebookTab", msg: str) -> None:
+def showtraceback(widget: "DefaultTab", msg: str) -> None:
     root: Union[tk.Tk, tk.Toplevel] = widget.winfo_toplevel()
     errWindow = tk.Toplevel(root)
     errWindow.title("Traceback")
@@ -36,30 +43,19 @@ def showtraceback(widget: "NotebookTab", msg: str) -> None:
     T.configure(state="disabled")
 
 
-class NotebookTab(ttk.Frame):
+class DefaultTab(ttk.Frame):
     def __init__(
-        self,
-        master: ttk.Notebook,
-        io_callbacks: Tuple[Any, Any],
-        dtype: tk.StringVar,
-        format: tk.StringVar,
-        contrast: tk.IntVar,
-        lower: tk.DoubleVar,
-        upper: tk.DoubleVar,
-        **kwargs: Any,
-    ) -> None:
+        self, master: ttk.Notebook, io_callbacks: Tuple[Any, Any], **kwargs: Any
+    ):
         if kwargs:
             super().__init__(master, **kwargs)
         else:
             super().__init__(master)
+
         self.ipath = tk.StringVar(self)
         self.opath = tk.StringVar(self)
         self.status = tk.StringVar(self, value="Idle")
-        self.dtype = dtype
-        self.format = format
-        self.contrast = contrast
-        self.low = lower
-        self.high = upper
+
         assert len(io_callbacks) == 2
         self.input_callback: Any = io_callbacks[0]
         self.output_callback: Any = io_callbacks[1]
@@ -88,36 +84,6 @@ class NotebookTab(ttk.Frame):
         self.statusval.config(text=status_msg, bg=STATUS_COLORS[status_msg])
         self.update()
 
-    def convert(self) -> None:
-        inpath = self.ipath.get()
-        outpath = self.opath.get()
-
-        dtype = self.dtype.get()
-        outfmt = self.format.get()
-        do_contrast = bool(self.contrast.get())
-        lower = self.low.get()
-        upper = self.high.get()
-
-        if outfmt in DRIVER_MAP:
-            outfmt = DRIVER_MAP[outfmt]
-
-        self.change_status("Processing")
-
-        try:
-            cli_entrypoint(inpath, outpath, outfmt, dtype, do_contrast, lower, upper)
-            self.change_status("Idle")
-            self.ipath.set("")
-            self.opath.set("")
-        except Exception:
-            self.change_status("ERROR")
-            showerror(
-                title="Error",
-                message="An unexpected error occurred."
-                "Close window or press OK to view traceback",
-            )
-            showtraceback(self, msg=traceback.format_exc())
-            raise
-
     def create_widgets(self) -> None:
 
         statuslbl = tk.Label(self, text="Status:")
@@ -144,6 +110,97 @@ class NotebookTab(ttk.Frame):
         open_input_button.pack(anchor="e", padx=20, pady=10)
         open_output_button.pack(anchor="e", padx=20, pady=10)
         convert_button.place(relx=0.3, rely=0.7, anchor=tk.CENTER)
+
+    @abc.abstractmethod
+    def convert(self) -> None:
+        pass
+
+
+class NotebookTab(DefaultTab):
+    def __init__(
+        self,
+        master: ttk.Notebook,
+        io_callbacks: Tuple[Any, Any],
+        dtype: tk.StringVar,
+        format: tk.StringVar,
+        contrast: tk.IntVar,
+        lower: tk.DoubleVar,
+        upper: tk.DoubleVar,
+        **kwargs: Any,
+    ) -> None:
+        self.dtype = dtype
+        self.format = format
+        self.contrast = contrast
+        self.low = lower
+        self.high = upper
+        if kwargs:
+            super().__init__(master, io_callbacks, **kwargs)
+        else:
+            super().__init__(master, io_callbacks)
+
+    def convert(self) -> None:
+        inpath = self.ipath.get()
+        outpath = self.opath.get()
+
+        dtype = self.dtype.get()
+        outfmt = self.format.get()
+        do_contrast = bool(self.contrast.get())
+        lower = self.low.get()
+        upper = self.high.get()
+        assert outfmt not in {"Terrain", "Mesh"}
+        if outfmt in DRIVER_MAP:
+            outfmt = DRIVER_MAP[outfmt]
+
+        self.change_status("Processing")
+
+        try:
+            cli_entrypoint(inpath, outpath, outfmt, dtype, do_contrast, lower, upper)
+            self.change_status("Idle")
+            self.ipath.set("")
+            self.opath.set("")
+        except Exception:
+            self.change_status("ERROR")
+            showerror(
+                title="Error",
+                message="An unexpected error occurred."
+                "Close window or press OK to view traceback",
+            )
+            showtraceback(self, msg=traceback.format_exc())
+            raise
+
+
+class DEMTab(DefaultTab):
+    def __init__(
+        self, master: ttk.Notebook, io_callbacks: Tuple[Any, Any], format: tk.StringVar
+    ) -> None:
+        super().__init__(master, io_callbacks)
+        self.format = format
+
+    def convert(self) -> None:
+        inpath = self.ipath.get()
+        outpath = self.opath.get()
+        outfmt = self.format.get()
+        if outfmt in DRIVER_MAP:
+            outfmt = DRIVER_MAP[outfmt]
+        self.change_status("Processing")
+
+        try:
+            cmd = f"ctb-tile -C -f {outfmt} -o {outpath} {inpath}"
+            os.system(cmd)
+            cmd = f"ctb-tile -C -l -o {outpath} {inpath}"
+            os.system(cmd)
+            self.change_status("Idle")
+            self.ipath.set("")
+            self.opath.set("")
+        except Exception:
+            self.change_status("ERROR")
+            showerror(
+                title="Error",
+                message="An unexpected error occurred."
+                "Close window or press OK to view traceback",
+            )
+            showtraceback(self, msg=traceback.format_exc())
+            raise
 
 
 class OptionsTab(ttk.Frame):
@@ -176,7 +233,7 @@ class OptionsTab(ttk.Frame):
             "Float64",
         ]
 
-        outfmt_opts = ["Native", "COG", "GTiff", "JPEG2000", "IMG"]
+        outfmt_opts = ["Native", "COG", "GTiff", "JPEG2000", "IMG", "Terrain", "Mesh"]
         # Create Label
         label = tk.Label(self, text="Options")
         label.pack(side="top")
@@ -252,8 +309,11 @@ def main() -> None:
         opt_tab.upper,
     )
 
+    dem_tab = DEMTab(tab_parent, (fd.askopenfilename, fd.askdirectory), opt_tab.format)
+
     tab_parent.add(file_tab, text="File")
     tab_parent.add(dir_tab, text="Directory")
+    tab_parent.add(dem_tab, text="DEM")
     tab_parent.pack(expand=1, fill="both")
     opt_tab.pack(side="bottom", fill="both", expand=True, pady=10)
 
