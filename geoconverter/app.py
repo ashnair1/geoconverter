@@ -8,7 +8,7 @@ from tkinter import ttk
 from tkinter.messagebox import showerror
 from typing import Any, Tuple, Union
 
-from gdal_extras.gdal_convert import cli_entrypoint
+from geoconverter.gdal_convert import cli_entrypoint
 
 if getattr(sys, "frozen", False):
     application_path = getattr(sys, "_MEIPASS", os.path.dirname(sys.executable))

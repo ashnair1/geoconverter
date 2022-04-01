@@ -11,11 +11,11 @@ Application for converting between geospatial raster formats.
 
 If you want to use `cesium terrain builder` to convert DEM tiffs to Terrain files or quantized Meshes, run the following command
 ```
-git clone --recurse-submodules https://github.com/ashnair1/gdal-extras.git
+git clone --recurse-submodules https://github.com/ashnair1/geoconverter.git
 ```
 else
 ```
-git clone https://github.com/ashnair1/gdal-extras.git
+git clone https://github.com/ashnair1/geoconverter.git
 ```
 
 ## Instructions
@@ -41,7 +41,7 @@ $ cmake -DCMAKE_BUILD_TYPE=Release -G "NMake Makefiles" -S cesium-terrain-builde
 Package the application with `ctb-tile.exe`, its associated dll `ctb.dll` and the proj directory. Either ensure your `PROJ_LIB` is set or pass the path to `proj` directory explicitly.
 
 ```console
-$ pyinstaller --clean --onedir gdal_extras/app.py --add-data "cesium-terrain-builder\build\tools\ctb-tile.exe;." --add-data "%PROJ_LIB%;proj" --add-binary "cesium-terrain-builder\build\src\ctb.dll;."
+$ pyinstaller --clean --onedir geoconverter/app.py --add-data "cesium-terrain-builder\build\tools\ctb-tile.exe;." --add-data "%PROJ_LIB%;proj" --add-binary "cesium-terrain-builder\build\src\ctb.dll;."
 ```
 
 Note: While deploying, there are two things users need to be aware of

@@ -61,13 +61,13 @@ jobs:
     - name: Build distribution (Linux)
       run: |
         export PROJ_LIB=/usr/share/proj
-        pyinstaller --clean --onedir gdal_extras/app.py --add-data "cesium-terrain-builder/build/tools/ctb-tile:." --add-data "$PROJ_LIB:proj" --add-binary "cesium-terrain-builder/build/src/libctb.so:."
+        pyinstaller --clean --onedir geoconverter/app.py --add-data "cesium-terrain-builder/build/tools/ctb-tile:." --add-data "$PROJ_LIB:proj" --add-binary "cesium-terrain-builder/build/src/libctb.so:."
       if: ${{ runner.os == 'Linux' }}
     
     - name: Build distribution (Windows)
       run: |
         $env:PROJ_LIB="$env:CONDA_PREFIX\Library\share\proj"
-        pyinstaller --clean --onedir gdal_extras/app.py --add-data "cesium-terrain-builder\build\tools\ctb-tile.exe;." --add-data "$env:PROJ_LIB;proj" --add-binary "cesium-terrain-builder\build\src\ctb.dll;."
+        pyinstaller --clean --onedir geoconverter/app.py --add-data "cesium-terrain-builder\build\tools\ctb-tile.exe;." --add-data "$env:PROJ_LIB;proj" --add-binary "cesium-terrain-builder\build\src\ctb.dll;."
       if: ${{ runner.os == 'Windows' }}
 
     # For debugging

@@ -1,4 +1,4 @@
-""""Utilities for gdal-extras"""
+""""Utilities for geoconverter"""
 
 from pathlib import Path
 from typing import List, Tuple, Union

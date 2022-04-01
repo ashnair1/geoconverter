@@ -7,11 +7,11 @@ Requires GDAL>=3.1
 
 Usage:
 
-python gdal-extras/gdal_convert.py -i ./data/in/a.tif
-python gdal-extras/gdal_convert.py -i ./data/in/a.tif -o out/a_cog.tif -of COG
-python gdal-extras/gdal_convert.py -i ./data/in/a.tif -of COG -or 0 255
-python gdal-extras/gdal_convert.py -i ./data/in/ -o ./data/out/ -of JPEG -b 5,3,2
-python gdal-extras/gdal_convert.py -i ./data/in/ -o ./data/out/ -of JPEG -b 5,3,2 stretch 2 98
+python geoconverter/gdal_convert.py -i ./data/in/a.tif
+python geoconverter/gdal_convert.py -i ./data/in/a.tif -o out/a_cog.tif -of COG
+python geoconverter/gdal_convert.py -i ./data/in/a.tif -of COG -or 0 255
+python geoconverter/gdal_convert.py -i ./data/in/ -o ./data/out/ -of JPEG -b 5,3,2
+python geoconverter/gdal_convert.py -i ./data/in/ -o ./data/out/ -of JPEG -b 5,3,2 stretch 2 98
 
 Full disclosure: This can be done using gdal_translate but you will need to
 manually set the scale params
@@ -23,7 +23,7 @@ from typing import Dict, List, Optional
 import numpy as np
 from osgeo import gdal
 
-from gdal_extras.utils import get_dtype, parse_files
+from geoconverter.utils import get_dtype, parse_files
 
 BITRANGE = {
     "Byte": [0.0, 255.0],
