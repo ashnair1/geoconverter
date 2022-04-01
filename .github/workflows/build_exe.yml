@@ -5,7 +5,7 @@ on:
     tags:
       - 'v*'
     branches:
-      - dem2
+      - dem
 
 
 jobs:
@@ -74,8 +74,9 @@ jobs:
         Compress-Archive dist\app dist\app.zip
       if: ${{ runner.os == 'Windows' }}
 
-    - name: Setup tmate session
-      uses: mxschmitt/action-tmate@v3
+    # For debugging
+    # - name: Setup tmate session
+    #   uses: mxschmitt/action-tmate@v3
 
     - name: Upload artifact (Linux)
       uses: actions/upload-artifact@v3
