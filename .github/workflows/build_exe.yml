@@ -64,14 +64,12 @@ jobs:
       run: |
         export PROJ_LIB=/usr/share/proj
         pyinstaller --clean --onedir gdal_extras/app.py --add-data "cesium-terrain-builder/build/tools/ctb-tile:." --add-data "$PROJ_LIB:proj" --add-binary "cesium-terrain-builder/build/src/libctb.so:."
-        tar -czf dist/app.tar.gz dist/app/
       if: ${{ runner.os == 'Linux' }}
     
     - name: Build distribution (Windows)
       run: |
         $env:PROJ_LIB="$env:CONDA_PREFIX\Library\share\proj"
         pyinstaller --clean --onedir gdal_extras/app.py --add-data "cesium-terrain-builder\build\tools\ctb-tile.exe;." --add-data "$env:PROJ_LIB;proj" --add-binary "cesium-terrain-builder\build\src\ctb.dll;."
-        Compress-Archive dist\app dist\app.zip
       if: ${{ runner.os == 'Windows' }}
 
     # For debugging
@@ -82,12 +80,12 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: gdal_converter_linux
-        path: dist/app.tar.gz
+        path: dist/app
       if: ${{ runner.os == 'Linux' }}
 
     - name: Upload artifact (Windows)
       uses: actions/upload-artifact@v3
       with:
         name: gdal_converter_win64
-        path: dist\app.zip
+        path: dist\app
       if: ${{ runner.os == 'Windows' }}
