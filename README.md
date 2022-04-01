@@ -1,4 +1,4 @@
-# gdal-converter
+# geoconverter
 
 Application for converting between geospatial raster formats. 
 
