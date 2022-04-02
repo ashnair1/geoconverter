@@ -31,6 +31,12 @@ STATUS_COLORS = {"Idle": "light gray", "Processing": "light green", "ERROR": "re
 
 
 def showtraceback(widget: "DefaultTab", msg: str) -> None:
+    """Display error traceback.
+
+    Args:
+        widget (DefaultTab): current widget
+        msg (str): error message to be displayed.
+    """
     root: Union[tk.Tk, tk.Toplevel] = widget.winfo_toplevel()
     errWindow = tk.Toplevel(root)
     errWindow.title("Traceback")

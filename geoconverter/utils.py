@@ -1,4 +1,4 @@
-""""Utilities for geoconverter"""
+"""Utilities for geoconverter"""
 
 from pathlib import Path
 from typing import List, Tuple, Union
@@ -7,6 +7,14 @@ from osgeo import gdal
 
 
 def get_dtype(input: Union[Path, str]) -> str:
+    """Get dtype of raster.
+
+    Args:
+        input (Union[Path, str]): Path to raster
+
+    Returns:
+        str: Raster dtype
+    """
     ds = gdal.Open(str(input))
     DataType = ds.GetRasterBand(1).DataType
     dtype: str = gdal.GetDataTypeName(DataType)
@@ -15,6 +23,19 @@ def get_dtype(input: Union[Path, str]) -> str:
 
 
 def get_extension(input: Union[Path, str], format: str) -> str:
+    """Get extension for specified format.
+
+    Args:
+        input (Union[Path, str]): Path to raster
+        format (str): Raster format
+
+    Raises:
+        AssertionError: if specified format is not a valid GDAL driver
+        AssertionError: if specified format does not have a valid extension
+
+    Returns:
+        str: File extension
+    """
 
     if format.lower() != "native":
         drv = gdal.GetDriverByName(format)
@@ -40,10 +61,21 @@ def get_extension(input: Union[Path, str], format: str) -> str:
 def parse_files(
     input: str, output: str, format: str, output_stub: str = "converted"
 ) -> Tuple[List[Path], List[Path]]:
+    """Parse specified input (file/dir) and output (file/dir)
+
+    Args:
+        input (str): Path to raster or directory of rasters
+        output (str): Path to output raster or directory
+        format (str): Raster format
+        output_stub (str, optional): String added to output filename. Defaults to "converted".
+
+    Returns:
+        Tuple[List[Path], List[Path]]: List of input and output paths
+    """
     assert Path(input).exists() and input != ""
 
     inpath = Path(input)
-    outpath = None if not output else Path(output)
+    outpath = Path(output) if output else None
 
     if inpath.is_dir():
         # If input is a dir, then output dir must be specified
@@ -61,7 +93,7 @@ def parse_files(
     elif inpath.is_file():
         ext = get_extension(inpath, format)
         outpaths = (
-            [inpath.parent / Path(f"{output_stub}.{ext}")] if not outpath else [outpath]
+            [outpath] if outpath else [inpath.parent / Path(f"{output_stub}.{ext}")]
         )
         assert inpath.suffix.lower() != ".xml"
         files = [inpath]
