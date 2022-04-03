@@ -1,0 +1,16 @@
+[data-md-color-scheme="geo-light"] {
+    --md-primary-fg-color:        #000000;
+    --md-primary-bg-color:        #a2f17d;
+    --md-accent-fg-color:         #01832e;
+    /* --md-accent-bg-color:         #4d392e; */
+    /* --md-typeset-color:           #1D1D1D; */
+  }
+
+
+[data-md-color-scheme="slate"] {
+    --md-hue: 210; 
+    --md-primary-fg-color:        #01832e;
+    --md-primary-bg-color:        #FFFF;
+    --md-accent-fg-color:         #1ade04;
+    /* --md-typeset-color:           #1ade04; */
+  }

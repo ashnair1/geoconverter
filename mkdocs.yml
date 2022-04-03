@@ -9,9 +9,11 @@ use_directory_urls: False
 theme:
   name: material
   language: en
+  icon:
+    logo: material/earth-arrow-right
   features:
     - content.tabs.link
-    # - navigation.instant
+    - navigation.instant
     - navigation.sections
     - navigation.tabs
     - navigation.tracking
@@ -19,18 +21,16 @@ theme:
     - search.share
     - search.suggest
   palette:
-    - scheme: slate
-      primary: teal
-      accent: teal
-      toggle:
-        icon: material/toggle-switch
-        name: Switch to light mode
-    - scheme: default
-      primary: teal
-      accent: teal
-      toggle:
-        icon: material/toggle-switch-off-outline
-        name: Switch to dark mode
+  - scheme: slate
+    toggle:
+      icon: material/toggle-switch
+      name: Switch to light mode
+  - scheme: geo-light
+    toggle:
+      icon: material/toggle-switch-off-outline
+      name: Switch to dark mode
+extra_css:
+  - stylesheets/extra.css
 
 
 markdown_extensions:
