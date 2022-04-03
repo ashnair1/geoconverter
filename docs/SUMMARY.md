@@ -1,4 +1,5 @@
 - [Home](index.md)
 - [Installation](installation.md)
+- [Deployment](deployment.md)
 - [Usage](usage.md)
 - [API Reference](reference/)

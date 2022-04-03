@@ -1,28 +1,35 @@
 <h1> Usage </h1>
 
-Changedet uses [fire](https://github.com/google/python-fire) for its CLI. Basic usage commands are given below.
+=== "Windows"
 
+    ![](./assets/win64.png)
 
-- For running change detection on two images, you can run the following command
+=== "Linux"
 
-```
-changedet --algo imgdiff run sample1.tif sample2.tif
-```
+    ![](./assets/linux.png)
 
-- Get more information on algorithm used
+## I/O tabs
+The GUI consists of three tabs for specifying input and output:
 
-```
-changedet --algo imgdiff algo_obj --help
-```
+- **File** : Input is a single file and output is a single file
+- **Directory**: Input is a directory and output is a directory
+- **DEM**: Input is a DEM raster and output is a directory 
 
-- Get more info on changedet pipeline
+## Options
+There are three main settings in the conversion process:
 
-```
-changedet --help
-```
+- **Dtype**: Output dtype format. Supports all valid gdal datatypes. Select `Native` if you want the output dtype to be same as that of input. 
+- **Format**: Output file format. Select `Native` if you want the output format to be same as that of input. 
+        
+        Supports the following formats:
+            Raster:
+                * Cloud Optimized GeoTiff (COG), 
+                * GeoTiff (GTiff), 
+                * JPEG2000 (based on OpenJPEG library), 
+                * Erdas Imagine (IMG). 
+            3D:
+                * Cesium Terrain files (Terrain)
+                * Quantized Mesh (Mesh)
 
-- List available algorithms
-
-```
-changedet list
-```
+- **Contrast Enhancement**: Apply percentile stretch to output raster.
+ 

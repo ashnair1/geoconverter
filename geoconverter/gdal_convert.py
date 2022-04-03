@@ -1,18 +1,19 @@
 #!/usr/bin/env python3
 
 """
-Rescales imagery to specified bit resolution and converts to specified format
+Rescales imagery to specified bit resolution and converts to specified format.
 
 Requires GDAL>=3.1
 
 Usage:
 
+```console
 python geoconverter/gdal_convert.py -i ./data/in/a.tif
 python geoconverter/gdal_convert.py -i ./data/in/a.tif -o out/a_cog.tif -of COG
 python geoconverter/gdal_convert.py -i ./data/in/a.tif -of COG -or 0 255
 python geoconverter/gdal_convert.py -i ./data/in/ -o ./data/out/ -of JPEG -b 5,3,2
 python geoconverter/gdal_convert.py -i ./data/in/ -o ./data/out/ -of JPEG -b 5,3,2 stretch 2 98
-
+```
 Full disclosure: This can be done using gdal_translate but you will need to
 manually set the scale params
 """
