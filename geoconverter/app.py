@@ -1,5 +1,6 @@
 import abc
 import os
+import subprocess
 import sys
 import tkinter as tk
 import traceback
@@ -191,10 +192,10 @@ class DEMTab(DefaultTab):
         self.change_status("Processing")
 
         try:
-            cmd = f"ctb-tile -C -f {outfmt} -o {outpath} {inpath}"
-            os.system(cmd)
-            cmd = f"ctb-tile -C -l -o {outpath} {inpath}"
-            os.system(cmd)
+            subprocess.Popen(
+                ["ctb-tile", "-C", "-f", outfmt, "-o", outpath, inpath]
+            ).wait()
+            subprocess.Popen(["ctb-tile", "-C", "-l", "-o", outpath, inpath]).wait()
             self.change_status("Idle")
             self.ipath.set("")
             self.opath.set("")
