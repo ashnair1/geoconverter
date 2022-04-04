@@ -622,18 +622,17 @@
 </code></pre></div>
 <h3 id="clone-repository">Clone repository<a class="headerlink" href="#clone-repository" title="Permanent link">&para;</a></h3>
 <p>The source for geoconverter can be downloaded from the <a href="https://github.com/ashnair1/geoconverter">Github repo</a>.</p>
-<div class="highlight"><pre><span></span><code><span class="go">git clone https://github.com/ashnair1/geoconverter.git</span>
-<span class="go">git submodule update --init --recursive</span>
+<div class="highlight"><pre><span></span><code><span class="go">git clone --recurse-submodules https://github.com/ashnair1/geoconverter.git</span>
 </code></pre></div>
 <details class="note">
 <summary>Using gdal &gt;= 3.4</summary>
 <p>To work with <code>gdal&gt;=3.4</code>, you will need to switch to the <code>gdal3.4</code> branch of <code>cesium-terrain-builder</code>. Follow the instructions given below:
-<div class="highlight"><pre><span></span><code><span class="gp"># </span>Edit submodule branch
-<span class="gp">$ </span>git config --file<span class="o">=</span>.gitmodules submodule.cesium-terrain-builder.branch gdal3.4
+<div class="highlight"><pre><span></span><code><span class="go">cd geoconverter</span>
+<span class="gp"># </span>Edit submodule branch
+<span class="go">git config --file=.gitmodules submodule.cesium-terrain-builder.branch gdal3.4</span>
 
 <span class="gp"># </span>Sync and update the submodule
-<span class="gp">$ </span>git submodule sync
-<span class="gp">$ </span>git submodule update --init --recursive --remote
+<span class="go">git submodule update --remote</span>
 </code></pre></div></p>
 </details>
 <div class="admonition important">
