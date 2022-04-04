@@ -15,19 +15,18 @@ conda activate geo
 The source for geoconverter can be downloaded from the [Github repo](https://github.com/ashnair1/geoconverter).
 
 ```console
-git clone https://github.com/ashnair1/geoconverter.git
-git submodule update --init --recursive
+git clone --recurse-submodules https://github.com/ashnair1/geoconverter.git
 ```
 
 ??? note "Using gdal >= 3.4"
     To work with `gdal>=3.4`, you will need to switch to the `gdal3.4` branch of `cesium-terrain-builder`. Follow the instructions given below:
     ```console
+    cd geoconverter
     # Edit submodule branch
-    $ git config --file=.gitmodules submodule.cesium-terrain-builder.branch gdal3.4
+    git config --file=.gitmodules submodule.cesium-terrain-builder.branch gdal3.4
 
     # Sync and update the submodule
-    $ git submodule sync
-    $ git submodule update --init --recursive --remote
+    git submodule update --remote
     ```
 
 !!! important "Important"
