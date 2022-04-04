@@ -10,7 +10,7 @@ Application for converting between geospatial raster formats.
 - Python >= 3.6
 
 ## Overview
-`geoconverter` is an application built for simple conversion between geospatial raster formats. It leverages [gdal](https://gdal.org/) and a [fork](https://github.com/ahuarte47/cesium-terrain-builder) of [cesium-terrain-builder](https://github.com/geo-data/cesium-terrain-builder) for cesium terrain formats. 
+`geoconverter` is an application built for simple conversion between geospatial raster formats. It leverages [gdal](https://gdal.org/) for handling the geospatial rasters and a [fork](https://github.com/ahuarte47/cesium-terrain-builder) of [cesium-terrain-builder](https://github.com/geo-data/cesium-terrain-builder) for cesium terrain formats. 
 
 
 ## Documentation

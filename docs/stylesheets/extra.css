@@ -1,16 +1,26 @@
 [data-md-color-scheme="geo-light"] {
+    /*Banner*/
     --md-primary-fg-color:        #000000;
+    /*Banner text*/
     --md-primary-bg-color:        #a2f17d;
+    /*Accent*/
     --md-accent-fg-color:         #01832e;
     /* --md-accent-bg-color:         #4d392e; */
-    /* --md-typeset-color:           #1D1D1D; */
+    /*Text link */
+    --md-typeset-a-color:           #01832e;
   }
 
 
 [data-md-color-scheme="slate"] {
     --md-hue: 210; 
-    --md-primary-fg-color:        #01832e;
-    --md-primary-bg-color:        #FFFF;
-    --md-accent-fg-color:         #1ade04;
-    /* --md-typeset-color:           #1ade04; */
+    /*Banner*/
+    --md-primary-fg-color:        #01832e; 
+    /*Banner text*/
+    --md-primary-bg-color:        #FFFF; 
+    /*Accent*/
+    --md-accent-fg-color:         #1ade04; 
+    /*Text*/
+    /* --md-typeset-color:           #1ade04; */ 
+    /*Text link */
+    --md-typeset-a-color:           #1ade04; 
   }
