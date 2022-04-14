@@ -192,10 +192,8 @@ class DEMTab(DefaultTab):
         self.change_status("Processing")
 
         try:
-            subprocess.Popen(
-                ["ctb-tile", "-C", "-f", outfmt, "-o", outpath, inpath]
-            ).wait()
-            subprocess.Popen(["ctb-tile", "-C", "-l", "-o", outpath, inpath]).wait()
+            subprocess.call(["ctb-tile", "-C", "-f", outfmt, "-o", outpath, inpath])
+            subprocess.call(["ctb-tile", "-C", "-l", "-o", outpath, inpath])
             self.change_status("Idle")
             self.ipath.set("")
             self.opath.set("")
