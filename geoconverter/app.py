@@ -193,7 +193,9 @@ class DEMTab(DefaultTab):
 
         try:
             subprocess.call(["ctb-tile", "-C", "-f", outfmt, "-o", outpath, inpath])
-            subprocess.call(["ctb-tile", "-C", "-l", "-o", outpath, inpath])
+            subprocess.call(
+                ["ctb-tile", "-C", "-f", outfmt, "-l", "-o", outpath, inpath]
+            )
             self.change_status("Idle")
             self.ipath.set("")
             self.opath.set("")
