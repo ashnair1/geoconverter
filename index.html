@@ -378,6 +378,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    Features
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#documentation" class="md-nav__link">
     Documentation
   </a>
@@ -591,6 +598,13 @@
 </ul>
 <h3 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h3>
 <p><code>geoconverter</code> is an application built for simple conversion between geospatial raster formats. It leverages <a href="https://gdal.org/">gdal</a> for handling the geospatial rasters and a <a href="https://github.com/ahuarte47/cesium-terrain-builder">fork</a> of <a href="https://github.com/geo-data/cesium-terrain-builder">cesium-terrain-builder</a> for cesium terrain formats. </p>
+<h3 id="features">Features<a class="headerlink" href="#features" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Correctly handles dtype conversion via correctly checking the min and max of raster bands and rescaling appropriately. This is possible via <a href="https://gdal.org/programs/gdal_translate.html"><code>gdal_translate</code></a> but you will need to manually find the min and max of the raster bands and specify it via the <a href="https://gdal.org/programs/gdal_translate.html#cmdoption-gdal_translate-scale">-scale</a> parameter. Geoconverter does this automatically.</li>
+<li>Supports cesium terrain formats. Using the cesium-terrain-builder (fork), geoconverter is also able to convert DEM rasters to cesium compatible terrain and quantized mesh formats.</li>
+<li>Supports percentile contrast enhancement.</li>
+<li>Provides a simple GUI.</li>
+</ul>
 <h3 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h3>
 <p>Project documentation can be found <a href="https://ashnair1.github.io/geoconverter/index">here</a></p>
 <h3 id="acknowledgements">Acknowledgements<a class="headerlink" href="#acknowledgements" title="Permanent link">&para;</a></h3>
