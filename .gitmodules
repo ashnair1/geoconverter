@@ -1,4 +1,4 @@
 [submodule "cesium-terrain-builder"]
 	path = cesium-terrain-builder
 	url = https://github.com/ashnair1/cesium-terrain-builder.git
-	branch = master-quantized-mesh
+	branch = main

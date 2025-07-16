@@ -131,3 +131,5 @@ dmypy.json
 # Folders
 data/
 out/
+*.zip
+*.tif*
