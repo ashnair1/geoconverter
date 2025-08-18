@@ -580,10 +580,10 @@
 <summary>Using gdal &gt;= 3.4</summary>
 <p>To work with <code>gdal&gt;=3.4</code>, you will need to switch to the <code>gdal3.4</code> branch of <code>cesium-terrain-builder</code>. Follow the instructions given below:
 <div class="highlight"><pre><span></span><code><span class="go">cd geoconverter</span>
-<span class="gp"># </span>Edit submodule branch
+<span class="gp"># </span>Edit<span class="w"> </span>submodule<span class="w"> </span>branch
 <span class="go">git config --file=.gitmodules submodule.cesium-terrain-builder.branch gdal3.4</span>
 
-<span class="gp"># </span>Sync and update the submodule
+<span class="gp"># </span>Sync<span class="w"> </span>and<span class="w"> </span>update<span class="w"> </span>the<span class="w"> </span>submodule
 <span class="go">git submodule update --remote</span>
 </code></pre></div></p>
 </details>
@@ -610,13 +610,13 @@ cmake -DCMAKE_BUILD_TYPE=Release <span class="se">^</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="nb">cd</span> geoconverter <span class="o">&amp;&amp;</span> mkdir cesium-terrain-builder/build
-cmake -DCMAKE_BUILD_TYPE<span class="o">=</span>Release <span class="se">\</span>
--DGDAL_LIBRARY_DIR<span class="o">=</span><span class="nv">$CONDA_PREFIX</span>/lib <span class="se">\</span>
--DGDAL_LIBRARY<span class="o">=</span><span class="nv">$CONDA_PREFIX</span>/lib/libgdal.so <span class="se">\</span>
--DGDAL_INCLUDE_DIR<span class="o">=</span><span class="nv">$CONDA_PREFIX</span>/include <span class="se">\</span>
--S cesium-terrain-builder <span class="se">\</span>
--B cesium-terrain-builder/build <span class="o">&amp;&amp;</span> cmake --build cesium-terrain-builder/build
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>geoconverter<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>mkdir<span class="w"> </span>cesium-terrain-builder/build
+cmake<span class="w"> </span>-DCMAKE_BUILD_TYPE<span class="o">=</span>Release<span class="w"> </span><span class="se">\</span>
+-DGDAL_LIBRARY_DIR<span class="o">=</span><span class="nv">$CONDA_PREFIX</span>/lib<span class="w"> </span><span class="se">\</span>
+-DGDAL_LIBRARY<span class="o">=</span><span class="nv">$CONDA_PREFIX</span>/lib/libgdal.so<span class="w"> </span><span class="se">\</span>
+-DGDAL_INCLUDE_DIR<span class="o">=</span><span class="nv">$CONDA_PREFIX</span>/include<span class="w"> </span><span class="se">\</span>
+-S<span class="w"> </span>cesium-terrain-builder<span class="w"> </span><span class="se">\</span>
+-B<span class="w"> </span>cesium-terrain-builder/build<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>cmake<span class="w"> </span>--build<span class="w"> </span>cesium-terrain-builder/build
 </code></pre></div>
 </div>
 </div>
@@ -633,10 +633,10 @@ cmake -DCMAKE_BUILD_TYPE<span class="o">=</span>Release <span class="se">\</span
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code>pyinstaller --clean --onedir geoconverter/app.py <span class="se">\</span>
---add-data <span class="s2">&quot;cesium-terrain-builder/build/tools/ctb-tile:.&quot;</span> <span class="se">\</span>
---add-binary <span class="s2">&quot;cesium-terrain-builder/build/src/libctb.so:.&quot;</span> <span class="se">\</span>
---add-data <span class="s2">&quot;</span><span class="nv">$PROJ_LIB</span><span class="s2">:proj&quot;</span>
+<div class="highlight"><pre><span></span><code>pyinstaller<span class="w"> </span>--clean<span class="w"> </span>--onedir<span class="w"> </span>geoconverter/app.py<span class="w"> </span><span class="se">\</span>
+--add-data<span class="w"> </span><span class="s2">&quot;cesium-terrain-builder/build/tools/ctb-tile:.&quot;</span><span class="w"> </span><span class="se">\</span>
+--add-binary<span class="w"> </span><span class="s2">&quot;cesium-terrain-builder/build/src/libctb.so:.&quot;</span><span class="w"> </span><span class="se">\</span>
+--add-data<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$PROJ_LIB</span><span class="s2">:proj&quot;</span>
 </code></pre></div>
 </div>
 </div>
