@@ -13,13 +13,21 @@ jobs:
         with:
           fetch-depth: 0
       - uses: actions/setup-python@v3
-      - name: Install dependencies
+      - name: Install GDAL
         run: |
-          python -m pip install --upgrade pip
           sudo apt-add-repository ppa:ubuntugis/ubuntugis-unstable
           sudo apt-get update
           sudo apt-get install gdal-bin libgdal-dev
-          python -m pip install GDAL numpy
+          gdalinfo --version
+          gdal-config --version
+          
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # Pin Python GDAL to the system's libgdal version to avoid mismatch
+          GDALVER=$(gdal-config --version)
+          echo "Installing Python gdal==$GDALVER"
+          python -m pip install "GDAL==$GDALVER" numpy
           export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
           python -m pip install -r docs/requirements.txt
       - name: Publish docs
