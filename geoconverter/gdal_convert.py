@@ -18,15 +18,17 @@ Full disclosure: This can be done using gdal_translate but you will need to
 manually set the scale params
 """
 
+import sys
 from argparse import ArgumentParser, Namespace
 from typing import Dict, List, Optional
 
 import numpy as np
 from osgeo import gdal
 
+import geoconverter
 from geoconverter.utils import get_dtype, parse_files
 
-BITRANGE = {
+BITRANGE: Dict[str, List[float]] = {
     "Byte": [0.0, 255.0],
     "UInt8": [0.0, 255.0],
     "UInt16": [0.0, 65535.0],
@@ -35,9 +37,9 @@ BITRANGE = {
     "Int32": [-2147483648.0, 2147483647.0],
     "Float32": [0.0, 1.0],
     "Float64": [0.0, 1.0],
-}  # type: Dict[str, List[float]]
+}
 
-TYPE_DICT = {
+TYPE_DICT: Dict[str, int] = {
     "Byte": gdal.GDT_Byte,
     "UInt8": gdal.GDT_Byte,
     "UInt16": gdal.GDT_UInt16,
@@ -46,7 +48,7 @@ TYPE_DICT = {
     "Int32": gdal.GDT_Int32,
     "Float32": gdal.GDT_Float32,
     "Float64": gdal.GDT_Float64,
-}  # type: Dict[str, int]
+}
 
 
 def getScaleParams(
@@ -56,7 +58,6 @@ def getScaleParams(
     lower: float,
     upper: float,
 ) -> List[List[float]]:
-
     if stretch:
         band_arr = ds.ReadAsArray()  # (B, H, W)
         assert band_arr.ndim == 3
@@ -71,7 +72,7 @@ def getScaleParams(
             for i in range(ds.RasterCount)
         ]
         vmin, vmax, vmean, vstd = zip(*stats)
-        scaleParams = list(zip(*[vmin, vmax]))
+        scaleParams = [[float(vmin[i]), float(vmax[i])] for i in range(len(vmin))]
 
     scaleParams = [list(s) for s in scaleParams]
     return [s + outputRange for s in scaleParams]
@@ -87,7 +88,6 @@ def setupOptions(
     lower: float = 0.0,
     upper: float = 100.0,
 ) -> gdal.GDALTranslateOptions:
-
     scaleParams = getScaleParams(ds, outputRange, stretch, lower, upper)
     if not bands:
         bands = list(range(1, ds.RasterCount + 1))
@@ -101,7 +101,14 @@ def setupOptions(
 
 
 def get_args() -> Namespace:
-    parser = ArgumentParser(description="Converter")
+    parser = ArgumentParser(
+        description="Geoconverter - Geospatial raster format conversion tool"
+    )
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"""geoconverter {geoconverter.__version__} GDAL {gdal.VersionInfo('RELEASE_NAME')} Python {sys.version.split()[0]}""",
+    )
     parser.add_argument("-i", "--input", help="input image/directory")
     parser.add_argument("-b", "--bands", type=str, help="bands string delimited by ,")
     parser.add_argument("-o", "--output", help="output image/directory")

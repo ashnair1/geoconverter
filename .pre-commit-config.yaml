@@ -1,25 +1,50 @@
+# Pre-commit configuration for geoconverter
+# Install with: pre-commit install
+# Run on all files: pre-commit run --all-files
+
 repos:
-    -   repo: https://github.com/pycqa/isort
-        rev: 5.10.1
-        hooks:
-        -    id: isort
-             additional_dependencies: ["colorama>=0.4.3"]
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.15
+    hooks:
+      - id: ruff
+        name: ruff (lint)
+        args: [--fix]
+      - id: ruff-format
+        name: ruff (format)
 
-    -   repo: https://github.com/psf/black
-        rev: 22.3.0
-        hooks:
-        -   id: black
-            args: [--skip-magic-trailing-comma]
+  # Type checking with mypy
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.8.0
+    hooks:
+      - id: mypy
+        additional_dependencies: [types-requests]
+        args: [--ignore-missing-imports]
+        exclude: (data|out|tests)/
 
-    -   repo: https://gitlab.com/pycqa/flake8.git
-        rev: 3.9.2
-        hooks:
-        -   id: flake8
-            entry: bash -c 'exec env PYFLAKES_NODOCTEST=TRUE'
+  # Built-in pre-commit hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-toml
+      - id: check-json
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: check-merge-conflict
+      - id: debug-statements
+      - id: check-docstring-first
+      - id: requirements-txt-fixer
 
-    -   repo: https://github.com/pre-commit/mirrors-mypy
-        rev: v0.942
-        hooks:
-        -   id: mypy
-            args: [--strict, --ignore-missing-imports, --show-error-codes]
-            exclude: (data|out)/
+# CI configuration
+ci:
+  autofix_commit_msg: |
+    [pre-commit.ci] auto fixes from pre-commit.com hooks
+
+    for more information, see https://pre-commit.ci
+  autofix_prs: true
+  autoupdate_branch: ''
+  autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
+  autoupdate_schedule: weekly
+  skip: []
+  submodules: false

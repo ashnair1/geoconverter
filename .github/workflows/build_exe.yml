@@ -48,22 +48,22 @@ jobs:
     - name: Install CTB (Linux)
       run: |
         mkdir cesium-terrain-builder/build
-        cmake -DCMAKE_BUILD_TYPE=Release -S cesium-terrain-builder -B cesium-terrain-builder/build && cmake --build cesium-terrain-builder/build 
+        cmake -DCMAKE_BUILD_TYPE=Release -S cesium-terrain-builder -B cesium-terrain-builder/build && cmake --build cesium-terrain-builder/build
       if: ${{ runner.os == 'Linux' }}
-    
+
     - uses: ilammy/msvc-dev-cmd@v1
     - name: Install CTB (Windows)
       run: |
         mkdir cesium-terrain-builder\build
         cmake -DCMAKE_BUILD_TYPE=Release -G "NMake Makefiles" -S cesium-terrain-builder -B cesium-terrain-builder\build && cmake --build cesium-terrain-builder\build
       if: ${{ runner.os == 'Windows' }}
-    
+
     - name: Build distribution (Linux)
       run: |
         export PROJ_LIB=/usr/share/proj
         pyinstaller --clean --onedir geoconverter/app.py --add-data "cesium-terrain-builder/build/tools/ctb-tile:." --add-data "$PROJ_LIB:proj" --add-binary "cesium-terrain-builder/build/src/libctb.so:."
       if: ${{ runner.os == 'Linux' }}
-    
+
     - name: Build distribution (Windows)
       run: |
         $env:PROJ_LIB="$env:CONDA_PREFIX\Library\share\proj"

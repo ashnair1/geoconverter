@@ -4,7 +4,7 @@ repo_name: ashnair1/geoconverter
 use_directory_urls: False
 #strict: true
 
-        
+
 # Configuration
 theme:
   name: material
@@ -39,8 +39,8 @@ extra_css:
 
 markdown_extensions:
   - pymdownx.emoji:
-      emoji_generator: !!python/name:materialx.emoji.to_svg
-      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:pymdownx.emoji.to_svg
+      emoji_index: !!python/name:pymdownx.emoji.twemoji
   - pymdownx.critic
   - pymdownx.caret
   - pymdownx.mark
@@ -58,7 +58,6 @@ markdown_extensions:
   - toc:
       baselevel: 2
       permalink: true
-      slugify: !!python/name:pymdownx.slugs.uslugify
   - meta
 
 plugins:
@@ -68,24 +67,16 @@ plugins:
   - mkdocstrings:
       handlers:
         python:
-          setup_commands:
-          - import sys
-          - sys.path.append("docs")
-          selection:
-            new_path_syntax: yes
-          rendering:
+          options:
             show_root_heading: true
             show_source: true
-          
-      watch:
-        - geoconverter
   - gen-files:
       scripts:
        - docs/gen_doc_stubs.py
   - literate-nav:
       nav_file: SUMMARY.md
   - section-index
-  
+
 
 extra:
   social:

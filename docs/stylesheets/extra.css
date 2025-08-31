@@ -12,15 +12,15 @@
 
 
 [data-md-color-scheme="slate"] {
-    --md-hue: 210; 
+    --md-hue: 210;
     /*Banner*/
-    --md-primary-fg-color:        #01832e; 
+    --md-primary-fg-color:        #01832e;
     /*Banner text*/
-    --md-primary-bg-color:        #FFFF; 
+    --md-primary-bg-color:        #FFFF;
     /*Accent*/
-    --md-accent-fg-color:         #1ade04; 
+    --md-accent-fg-color:         #1ade04;
     /*Text*/
-    /* --md-typeset-color:           #1ade04; */ 
+    /* --md-typeset-color:           #1ade04; */
     /*Text link */
-    --md-typeset-a-color:           #1ade04; 
+    --md-typeset-a-color:           #1ade04;
   }

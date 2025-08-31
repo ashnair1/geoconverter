@@ -2,4 +2,4 @@
 - [Installation](installation.md)
 - [Deployment](deployment.md)
 - [Usage](usage.md)
-- [API Reference](reference/)
+- [GDAL Compatibility](gdal-compatibility.md)

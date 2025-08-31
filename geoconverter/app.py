@@ -11,6 +11,38 @@ from typing import Any, Tuple, Union
 
 from geoconverter.gdal_convert import cli_entrypoint
 
+
+def find_ctb_tile() -> str:
+    """Find ctb-tile executable, checking PATH and common locations."""
+    # First try PATH
+    import shutil
+
+    ctb_path = shutil.which("ctb-tile")
+    if ctb_path:
+        return ctb_path
+
+    # Try relative to this package (for development)
+    pkg_dir = os.path.dirname(__file__)
+    relative_path = os.path.join(
+        pkg_dir, "..", "cesium-terrain-builder", "build-linux", "tools", "ctb-tile"
+    )
+    if os.path.isfile(relative_path):
+        return relative_path
+
+    # Try common system locations
+    common_paths = [
+        "/usr/local/bin/ctb-tile",
+        "/usr/bin/ctb-tile",
+        "/opt/ctb/bin/ctb-tile",
+    ]
+    for path in common_paths:
+        if os.path.isfile(path):
+            return path
+
+    # Fall back to assuming it's in PATH (will fail if not available)
+    return "ctb-tile"
+
+
 if getattr(sys, "frozen", False):
     application_path = getattr(sys, "_MEIPASS", os.path.dirname(sys.executable))
     os.environ["PROJ_LIB"] = os.path.join(application_path, "proj")
@@ -92,7 +124,6 @@ class DefaultTab(ttk.Frame):
         self.update()
 
     def create_widgets(self) -> None:
-
         statuslbl = tk.Label(self, text="Status:")
         statuslbl.place(relx=0.7, rely=0.7, anchor="e")
         self.statusval = tk.Label(self, textvariable=self.status)
@@ -154,48 +185,23 @@ class NotebookTab(DefaultTab):
         do_contrast = bool(self.contrast.get())
         lower = self.low.get()
         upper = self.high.get()
-        assert outfmt not in {"Terrain", "Mesh"}
         if outfmt in DRIVER_MAP:
             outfmt = DRIVER_MAP[outfmt]
 
         self.change_status("Processing")
 
         try:
-            cli_entrypoint(inpath, outpath, outfmt, dtype, do_contrast, lower, upper)
-            self.change_status("Idle")
-            self.ipath.set("")
-            self.opath.set("")
-        except Exception:
-            self.change_status("ERROR")
-            showerror(
-                title="Error",
-                message="An unexpected error occurred."
-                "Close window or press OK to view traceback",
-            )
-            showtraceback(self, msg=traceback.format_exc())
-            raise
-
-
-class DEMTab(DefaultTab):
-    def __init__(
-        self, master: ttk.Notebook, io_callbacks: Tuple[Any, Any], format: tk.StringVar
-    ) -> None:
-        super().__init__(master, io_callbacks)
-        self.format = format
-
-    def convert(self) -> None:
-        inpath = self.ipath.get()
-        outpath = self.opath.get()
-        outfmt = self.format.get()
-        if outfmt in DRIVER_MAP:
-            outfmt = DRIVER_MAP[outfmt]
-        self.change_status("Processing")
-
-        try:
-            subprocess.call(["ctb-tile", "-C", "-f", outfmt, "-o", outpath, inpath])
-            subprocess.call(
-                ["ctb-tile", "-C", "-f", outfmt, "-l", "-o", outpath, inpath]
-            )
+            # Route Terrain/Mesh formats to ctb-tile, others to cli_entrypoint
+            if outfmt in {"Terrain", "Mesh"}:
+                ctb_exe = find_ctb_tile()
+                subprocess.call([ctb_exe, "-C", "-f", outfmt, "-o", outpath, inpath])
+                subprocess.call(
+                    [ctb_exe, "-C", "-f", outfmt, "-l", "-o", outpath, inpath]
+                )
+            else:
+                cli_entrypoint(
+                    inpath, outpath, outfmt, dtype, do_contrast, lower, upper
+                )
             self.change_status("Idle")
             self.ipath.set("")
             self.opath.set("")
@@ -285,7 +291,6 @@ class OptionsTab(ttk.Frame):
 
 
 def main() -> None:
-
     # Root window
     root = tk.Tk()
     root.title("Converter")
@@ -316,11 +321,8 @@ def main() -> None:
         opt_tab.upper,
     )
 
-    dem_tab = DEMTab(tab_parent, (fd.askopenfilename, fd.askdirectory), opt_tab.format)
-
     tab_parent.add(file_tab, text="File")
     tab_parent.add(dir_tab, text="Directory")
-    tab_parent.add(dem_tab, text="DEM")
     tab_parent.pack(expand=1, fill="both")
     opt_tab.pack(side="bottom", fill="both", expand=True, pady=10)
 

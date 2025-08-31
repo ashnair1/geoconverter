@@ -6,7 +6,6 @@ nav = mkdocs_gen_files.Nav()
 
 
 for path in sorted(Path("geoconverter").glob("**/*.py")):
-
     module_path = path.relative_to(".").with_suffix("")
     if "__init__" in str(module_path):
         continue

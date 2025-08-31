@@ -1,0 +1,212 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "geoconverter"
+version = "0.2.0"
+description = "Application for converting between geospatial raster formats with cesium terrain support"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Ashwin Nair", email = "ashnair0007@gmail.com"}
+]
+maintainers = [
+    {name = "Ashwin Nair", email = "ashnair0007@gmail.com"}
+]
+keywords = [
+    "geospatial", 
+    "raster", 
+    "gdal", 
+    "cesium", 
+    "terrain", 
+    "gis", 
+    "conversion"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: GIS",
+    "Topic :: Multimedia :: Graphics :: Graphics Conversion",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "gdal>=3.1.0",
+    "numpy>=1.19.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/ashnair1/geoconverter"
+Repository = "https://github.com/ashnair1/geoconverter"
+Documentation = "https://ashnair1.github.io/geoconverter/"
+Issues = "https://github.com/ashnair1/geoconverter/issues"
+Changelog = "https://github.com/ashnair1/geoconverter/releases"
+
+[project.scripts]
+geoconverter = "geoconverter.cli:main"
+geoconverter-gui = "geoconverter.app:main"
+
+[project.optional-dependencies]
+gui = []  # tkinter is built-in to Python
+
+# Testing dependencies
+test = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0", 
+    "pytest-mock>=3.10.0",
+]
+
+# Code quality and linting
+lint = [
+    "ruff>=0.1.0",
+    "mypy>=1.5.0",
+    "pre-commit>=3.0.0",
+]
+
+# Documentation dependencies
+docs = [
+    "mkdocs>=1.3.0",
+    "mkdocs-autorefs>=0.4.1",
+    "mkdocs-gen-files>=0.3.4", 
+    "mkdocs-include-markdown-plugin>=3.3.0",
+    "mkdocs-literate-nav>=0.4.1",
+    "mkdocs-material>=8.2.8",
+    "mkdocs-material-extensions>=1.0.3",
+    "mkdocs-section-index>=0.3.4",
+    "mkdocstrings>=0.20.0",  # Updated to match requirements-dev.txt
+    "mkdocstrings-python-legacy>=0.2.2",
+]
+
+# Build and release tools
+build = [
+    "build>=0.10.0",
+    "twine>=4.0.0",
+]
+
+# Monitoring and CI utilities
+monitor = [
+    "requests>=2.28.0",
+    "packaging>=21.0",
+]
+
+# Complete development environment (includes all above)
+dev = [
+    "geoconverter[test,lint,docs,build,monitor]",
+]
+
+# Tool configurations
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["geoconverter*"]
+
+[tool.setuptools.package-data]
+geoconverter = ["py.typed"]
+
+[tool.ruff]
+target-version = "py38"
+line-length = 88
+
+[tool.ruff.lint]
+# Enable linting rules
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings  
+    "F",   # pyflakes
+    "I",   # isort
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501",  # line too long, handled by ruff format
+    "B008",  # do not perform function calls in argument defaults
+    "ARG001", # unused function argument (sometimes needed for interface compatibility)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*" = ["ARG", "S101"]  # Allow unused args and asserts in tests
+
+# Configure ruff formatter (replaces black)
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+[[tool.mypy.overrides]]
+module = "osgeo.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "tkinter.*"
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--strict-markers",
+    "--strict-config", 
+    "--cov=geoconverter",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--cov-report=xml",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "gui: marks tests that require GUI components",
+]
+filterwarnings = [
+    "error",
+    "ignore::UserWarning",
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+]
+
+[tool.coverage.run]
+source = ["geoconverter"]
+omit = [
+    "*/tests/*",
+    "*/test_*.py",
+    "*/__pycache__/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]

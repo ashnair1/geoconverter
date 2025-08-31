@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "cstring": "cpp"
+    },
+    "cmake.sourceDirectory": "/home/ash1/Projects/geoconverter/cesium-terrain-builder",
+    "makefile.configureOnOpen": true
+}
