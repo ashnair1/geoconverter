@@ -133,14 +133,28 @@ We welcome contributions! Areas where help is needed:
 
 Visit our [GitHub repository](https://github.com/ashnair1/geoconverter) to get started.
 
-## 📄 License
+## 📄 License & Attribution
 
-MIT License - see the [LICENSE](https://github.com/ashnair1/geoconverter/blob/main/LICENSE) file for details.
+Geoconverter is licensed under the **MIT License**. However, this package includes third-party components with different licenses:
+
+### Bundled Components
+- **Cesium Terrain Builder**: Apache License 2.0
+  - Binaries: `ctb-tile`, `ctb-export`, `ctb-extents`, `ctb-info`
+  - Library: `libctb.so` (Linux/macOS) / `ctb.dll` (Windows)
+  - Source: [geo-data/cesium-terrain-builder](https://github.com/geo-data/cesium-terrain-builder)
+
+### Runtime Dependencies
+- **GDAL**: MIT/X-style license (not bundled, separate installation required)
+
+For complete license information, see:
+- [`LICENSE`](LICENSE) - MIT License (Geoconverter code)
+- [`THIRD_PARTY_LICENSES`](THIRD_PARTY_LICENSES) - Attribution for bundled components
+- [`LICENSES/`](LICENSES/) - Full license texts
 
 ## 🙏 Acknowledgments
 
 - **GDAL Team**: For the foundational geospatial library
-- **@homme** & **@ahuarte47**: Cesium Terrain Builder contributors
+- **Cesium Terrain Builder Contributors**: Original by @homme, maintained by @ahuarte47
 - **Cesium**: For terrain visualization standards
 - **Community**: All users and contributors
 

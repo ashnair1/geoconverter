@@ -7,7 +7,8 @@ name = "geoconverter"
 version = "0.2.0"
 description = "Application for converting between geospatial raster formats with cesium terrain support"
 readme = "README.md"
-license = {text = "MIT"}
+license = "MIT"
+license-files = ["LICENSE", "THIRD_PARTY_LICENSES", "LICENSES/*.txt"]
 authors = [
     {name = "Ashwin Nair", email = "ashnair0007@gmail.com"}
 ]
@@ -29,7 +30,6 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering :: GIS",
     "Topic :: Multimedia :: Graphics :: Graphics Conversion",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
@@ -104,12 +104,15 @@ dev = [
 ]
 
 # Tool configurations
+[tool.setuptools]
+include-package-data = true
+
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["geoconverter*"]
 
 [tool.setuptools.package-data]
-geoconverter = ["py.typed"]
+geoconverter = ["py.typed", "bin/*", "lib/*"]
 
 [tool.ruff]
 target-version = "py38"

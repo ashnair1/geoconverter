@@ -14,35 +14,60 @@ from osgeo import gdal
 from geoconverter.gdal_convert import cli_entrypoint
 
 
-def find_ctb_tile() -> str:
-    """Find ctb-tile executable, checking PATH and common locations."""
-    # First try PATH
+def find_ctb_binary(binary_name: str) -> str:
+    """Find CTB binary, checking bundled binary first, then PATH and common locations."""
     import shutil
 
-    ctb_path = shutil.which("ctb-tile")
+    # First try bundled binary (for packaged installation)
+    pkg_dir = os.path.dirname(__file__)
+    bundled_path = os.path.join(pkg_dir, "bin", binary_name)
+    if os.path.isfile(bundled_path):
+        return bundled_path
+
+    # Try PATH
+    ctb_path = shutil.which(binary_name)
     if ctb_path:
         return ctb_path
 
     # Try relative to this package (for development)
-    pkg_dir = os.path.dirname(__file__)
     relative_path = os.path.join(
-        pkg_dir, "..", "cesium-terrain-builder", "build-linux", "tools", "ctb-tile"
+        pkg_dir, "..", "cesium-terrain-builder", "build-linux", "tools", binary_name
     )
     if os.path.isfile(relative_path):
         return relative_path
 
     # Try common system locations
     common_paths = [
-        "/usr/local/bin/ctb-tile",
-        "/usr/bin/ctb-tile",
-        "/opt/ctb/bin/ctb-tile",
+        f"/usr/local/bin/{binary_name}",
+        f"/usr/bin/{binary_name}",
+        f"/opt/ctb/bin/{binary_name}",
     ]
     for path in common_paths:
         if os.path.isfile(path):
             return path
 
     # Fall back to assuming it's in PATH (will fail if not available)
-    return "ctb-tile"
+    return binary_name
+
+
+def find_ctb_tile() -> str:
+    """Find ctb-tile executable."""
+    return find_ctb_binary("ctb-tile")
+
+
+def find_ctb_export() -> str:
+    """Find ctb-export executable."""
+    return find_ctb_binary("ctb-export")
+
+
+def find_ctb_extents() -> str:
+    """Find ctb-extents executable."""
+    return find_ctb_binary("ctb-extents")
+
+
+def find_ctb_info() -> str:
+    """Find ctb-info executable."""
+    return find_ctb_binary("ctb-info")
 
 
 if getattr(sys, "frozen", False):
@@ -234,17 +259,24 @@ class DEMTab(DefaultTab):
         # Build vrt
         name, _ = os.path.splitext(inpath)
         vrtpath = f"{name}.vrt"
-        vrt = gdal.BuildVRT(vrtpath, inpath)
-        vrt = None
+        gdal.BuildVRT(vrtpath, inpath)
 
         try:
             ctb_exe = find_ctb_tile()
 
-            # Set up environment for ctb-tile if using relative path
+            # Set up environment for ctb-tile if using bundled or relative path
             env = os.environ.copy()
             if not ctb_exe.startswith("/usr") and not ctb_exe == "ctb-tile":
-                # Using relative path, need to set LD_LIBRARY_PATH
-                lib_dir = os.path.join(os.path.dirname(ctb_exe), "..", "src")
+                pkg_dir = os.path.dirname(__file__)
+
+                # Check if using bundled binary
+                if "bin/ctb-tile" in ctb_exe:
+                    # Using bundled binary, lib is in ../lib relative to bin
+                    lib_dir = os.path.join(pkg_dir, "lib")
+                else:
+                    # Using development path, lib is in ../src relative to tools
+                    lib_dir = os.path.join(os.path.dirname(ctb_exe), "..", "src")
+
                 lib_dir = os.path.abspath(lib_dir)
                 if "LD_LIBRARY_PATH" in env:
                     env["LD_LIBRARY_PATH"] = f"{lib_dir}:{env['LD_LIBRARY_PATH']}"
@@ -289,7 +321,6 @@ class DEMTab(DefaultTab):
                 )
             else:
                 # Terrain format can work with less memory
-                memory_limit = "256M"  # 256MB for Terrain format
                 subprocess.call(
                     [
                         ctb_exe,

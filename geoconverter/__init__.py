@@ -21,6 +21,13 @@ __email__ = "ashnair0007@gmail.com"
 
 # Public API exports
 from geoconverter import gdal_convert, utils
+from geoconverter.app import (
+    find_ctb_binary,
+    find_ctb_export,
+    find_ctb_extents,
+    find_ctb_info,
+    find_ctb_tile,
+)
 
 # Version info tuple for programmatic access
 version_info = tuple(int(x) for x in __version__.split("."))
@@ -29,6 +36,11 @@ version_info = tuple(int(x) for x in __version__.split("."))
 __all__ = [
     "gdal_convert",
     "utils",
+    "find_ctb_tile",
+    "find_ctb_export",
+    "find_ctb_extents",
+    "find_ctb_info",
+    "find_ctb_binary",
     "__version__",
     "version_info",
 ]

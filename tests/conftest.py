@@ -33,9 +33,9 @@ def sample_tif(temp_dir: Path) -> Path:
 def gdal_available() -> bool:
     """Check if GDAL is available for testing."""
     try:
-        from osgeo import gdal
+        import importlib.util
 
-        return True
+        return importlib.util.find_spec("osgeo.gdal") is not None
     except ImportError:
         return False
 

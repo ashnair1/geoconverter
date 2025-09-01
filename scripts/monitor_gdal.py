@@ -8,12 +8,13 @@ that may require compatibility testing.
 
 import sys
 from datetime import datetime
+from typing import List
 
 import requests
 from packaging import version
 
 
-def get_latest_gdal_releases():
+def get_latest_gdal_releases() -> List[dict]:
     """Fetch latest GDAL releases from GitHub API."""
     url = "https://api.github.com/repos/OSGeo/gdal/releases"
 
@@ -55,7 +56,7 @@ def get_latest_gdal_releases():
         return []
 
 
-def check_compatibility_status(gdal_version_str):
+def check_compatibility_status(gdal_version_str: str) -> str:
     """Check if a GDAL version is in our tested compatibility matrix."""
     # These are the versions we currently test
     tested_versions = ["3.8", "3.9", "3.10", "3.11"]
@@ -83,7 +84,7 @@ def check_compatibility_status(gdal_version_str):
         return "unknown"
 
 
-def check_breaking_changes(release_body):
+def check_breaking_changes(release_body: str) -> List[str]:
     """Check release notes for potential breaking changes."""
     breaking_indicators = [
         "breaking change",
@@ -105,7 +106,7 @@ def check_breaking_changes(release_body):
     return found_indicators
 
 
-def generate_report():
+def generate_report() -> int:
     """Generate a compatibility status report."""
     print("=== GDAL Release Compatibility Monitor ===")
     print(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
@@ -176,7 +177,7 @@ def generate_report():
         return 0
 
 
-def update_github_actions():
+def update_github_actions() -> None:
     """Suggest updates to GitHub Actions workflow based on new releases."""
     releases = get_latest_gdal_releases()
     if not releases:

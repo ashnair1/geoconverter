@@ -1,0 +1,27 @@
+THIRD PARTY LICENSES
+====================
+
+This package includes software components from third parties with the following licenses:
+
+1. CESIUM TERRAIN BUILDER
+-------------------------
+Location: geoconverter/bin/ and geoconverter/lib/
+License: Apache License 2.0
+Source: Your fork based on https://github.com/ahuarte47/cesium-terrain-builder
+Fork Chain: geo-data/cesium-terrain-builder → ahuarte47/cesium-terrain-builder → your fork
+
+The cesium-terrain-builder components (ctb-tile, ctb-export, ctb-extents, ctb-info, and libctb.so)
+are distributed under the Apache License 2.0. See LICENSES/Apache-2.0.txt for the full license text.
+
+Copyright Notices:
+Copyright (c) 2013 Homme Zwaagstra (homme) - original author
+Copyright (c) 2018 GeoData Institute, University of Southampton
+Copyright (c) Alvaro Huarte (ahuarte47) - maintained fork contributions, quantized mesh support
+
+2. GDAL
+-------
+License: X/MIT style Open Source License
+Used as: Runtime dependency for geospatial data processing
+Note: Not bundled, required as separate installation
+
+For complete license texts, see the LICENSES/ directory.

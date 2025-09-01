@@ -139,7 +139,7 @@ class TestSetupOptions:
             with patch(
                 "geoconverter.gdal_convert.gdal.TranslateOptions"
             ) as mock_options:
-                result = gdal_convert.setupOptions(
+                _ = gdal_convert.setupOptions(
                     mock_dataset, "GTiff", "Byte", [0.0, 255.0], None
                 )
 
@@ -160,7 +160,7 @@ class TestSetupOptions:
             with patch(
                 "geoconverter.gdal_convert.gdal.TranslateOptions"
             ) as mock_options:
-                result = gdal_convert.setupOptions(
+                _ = gdal_convert.setupOptions(
                     mock_dataset,
                     "GTiff",
                     "Byte",

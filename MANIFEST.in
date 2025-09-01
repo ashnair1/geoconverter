@@ -1,0 +1,30 @@
+# Include license and attribution files
+include LICENSE
+include THIRD_PARTY_LICENSES
+recursive-include LICENSES *.txt
+graft LICENSES
+
+# Include documentation
+include README.md
+include CHANGELOG.md
+
+# Include configuration files
+include pyproject.toml
+include pytest.ini
+include .gitignore
+
+# Include data files for geoconverter package
+recursive-include geoconverter/bin *
+recursive-include geoconverter/lib *
+
+# Exclude development files
+exclude .pre-commit-config.yaml
+exclude Makefile
+exclude mkdocs.yml
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
+recursive-exclude tests *
+recursive-exclude .github *
+recursive-exclude docs *
+recursive-exclude build *
+recursive-exclude dist *

@@ -6,7 +6,7 @@ from geoconverter.gdal_convert import get_args
 from geoconverter.gdal_convert import main as gdal_main
 
 
-def main():
+def main() -> None:
     """Main CLI entry point for geoconverter."""
     try:
         args = get_args()

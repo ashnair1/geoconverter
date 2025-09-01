@@ -1,0 +1,127 @@
+name: Build Wheels
+
+on:
+  push:
+    branches: [main]
+    tags: [v*]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install system dependencies (Ubuntu)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            cmake \
+            libgdal-dev \
+            gdal-bin \
+            libsqlite3-dev \
+            libtiff-dev \
+            libgeos-dev \
+            libproj-dev
+
+      - name: Install system dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew update
+          brew install \
+            cmake \
+            gdal \
+            sqlite \
+            libtiff \
+            geos \
+            proj
+
+      - name: Install system dependencies (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          # Use conda for GDAL on Windows
+          conda install -c conda-forge gdal cmake
+
+      - name: Build cesium-terrain-builder
+        run: |
+          cd cesium-terrain-builder
+          mkdir -p build
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release
+          cmake --build . --config Release
+
+      - name: Create binary directories
+        run: |
+          mkdir -p geoconverter/bin
+          mkdir -p geoconverter/lib
+
+      - name: Copy binaries (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: |
+          cp cesium-terrain-builder/build/tools/ctb-tile geoconverter/bin/
+          cp cesium-terrain-builder/build/tools/ctb-export geoconverter/bin/
+          cp cesium-terrain-builder/build/tools/ctb-extents geoconverter/bin/
+          cp cesium-terrain-builder/build/tools/ctb-info geoconverter/bin/
+          cp cesium-terrain-builder/build/src/libctb.* geoconverter/lib/ || true
+          chmod +x geoconverter/bin/*
+
+      - name: Copy binaries (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          copy cesium-terrain-builder\build\tools\Release\ctb-tile.exe geoconverter\bin\ctb-tile.exe
+          copy cesium-terrain-builder\build\tools\Release\ctb-export.exe geoconverter\bin\ctb-export.exe
+          copy cesium-terrain-builder\build\tools\Release\ctb-extents.exe geoconverter\bin\ctb-extents.exe
+          copy cesium-terrain-builder\build\tools\Release\ctb-info.exe geoconverter\bin\ctb-info.exe
+          copy cesium-terrain-builder\build\src\Release\ctb.dll geoconverter\lib\ || echo "No DLL found"
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install build wheel
+
+      - name: Build wheel
+        run: python -m build --wheel
+
+      - name: Upload wheels
+        uses: actions/upload-artifact@v3
+        with:
+          name: wheels-${{ runner.os }}
+          path: dist/*.whl
+
+  publish:
+    name: Publish to PyPI
+    needs: build-wheels
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Download all wheels
+        uses: actions/download-artifact@v3
+        with:
+          path: dist/
+
+      - name: Move wheels to single directory
+        run: |
+          mkdir -p final-dist
+          find dist/ -name "*.whl" -exec mv {} final-dist/ \;
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          packages-dir: final-dist/

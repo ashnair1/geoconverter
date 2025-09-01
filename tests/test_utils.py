@@ -105,8 +105,8 @@ class TestParseFiles:
         # Create test files
         from tests.data import create_test_tif
 
-        file1 = create_test_tif(str(input_dir / "test1.tif"))
-        file2 = create_test_tif(str(input_dir / "test2.tif"))
+        _ = create_test_tif(str(input_dir / "test1.tif"))
+        _ = create_test_tif(str(input_dir / "test2.tif"))
 
         files, outfiles = utils.parse_files(str(input_dir), str(output_dir), "GTiff")
 
