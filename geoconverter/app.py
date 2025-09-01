@@ -4,6 +4,7 @@ import subprocess
 import sys
 import tkinter as tk
 import traceback
+from osgeo import gdal
 from tkinter import filedialog as fd
 from tkinter import ttk
 from tkinter.messagebox import showerror
@@ -185,22 +186,90 @@ class NotebookTab(DefaultTab):
         do_contrast = bool(self.contrast.get())
         lower = self.low.get()
         upper = self.high.get()
+        
+        if outfmt in {"Terrain", "Mesh"}:
+            showerror(
+                title="Wrong Tab",
+                message="Please use the DEM tab for Terrain and Mesh conversion."
+            )
+            return
+            
         if outfmt in DRIVER_MAP:
             outfmt = DRIVER_MAP[outfmt]
 
         self.change_status("Processing")
 
         try:
-            # Route Terrain/Mesh formats to ctb-tile, others to cli_entrypoint
-            if outfmt in {"Terrain", "Mesh"}:
-                ctb_exe = find_ctb_tile()
-                subprocess.call([ctb_exe, "-C", "-f", outfmt, "-o", outpath, inpath])
+            cli_entrypoint(inpath, outpath, outfmt, dtype, do_contrast, lower, upper)
+            self.change_status("Idle")
+            self.ipath.set("")
+            self.opath.set("")
+        except Exception:
+            self.change_status("ERROR")
+            showerror(
+                title="Error",
+                message="An unexpected error occurred."
+                "Close window or press OK to view traceback",
+            )
+            showtraceback(self, msg=traceback.format_exc())
+            raise
+
+
+class DEMTab(DefaultTab):
+    def __init__(
+        self, master: ttk.Notebook, io_callbacks: Tuple[Any, Any], format: tk.StringVar
+    ) -> None:
+        super().__init__(master, io_callbacks)
+        self.format = format
+
+    def convert(self) -> None:
+        inpath = self.ipath.get()
+        outpath = self.opath.get()
+        outfmt = self.format.get()
+        if outfmt in DRIVER_MAP:
+            outfmt = DRIVER_MAP[outfmt]
+        self.change_status("Processing")
+
+        # Build vrt
+        name, _ = os.path.splitext(inpath)
+        vrtpath = f"{name}.vrt"
+        vrt = gdal.BuildVRT(vrtpath, inpath)
+        vrt = None
+
+        try:
+            ctb_exe = find_ctb_tile()
+            
+            # Set up environment for ctb-tile if using relative path
+            env = os.environ.copy()
+            if not ctb_exe.startswith('/usr') and not ctb_exe == "ctb-tile":
+                # Using relative path, need to set LD_LIBRARY_PATH
+                lib_dir = os.path.join(os.path.dirname(ctb_exe), "..", "src")
+                lib_dir = os.path.abspath(lib_dir)
+                if "LD_LIBRARY_PATH" in env:
+                    env["LD_LIBRARY_PATH"] = f"{lib_dir}:{env['LD_LIBRARY_PATH']}"
+                else:
+                    env["LD_LIBRARY_PATH"] = lib_dir
+            
+            # Memory optimization parameters
+            thread_count = "2"     # Reduce threads to save memory
+            
+            if outfmt == "Mesh":
+                # Mesh format - let GDAL use default memory management
                 subprocess.call(
-                    [ctb_exe, "-C", "-f", outfmt, "-l", "-o", outpath, inpath]
+                    [ctb_exe, "-C", "-N", "-f", outfmt, "-c", thread_count, "-o", outpath, vrtpath],
+                    env=env
+                )
+                subprocess.call(
+                    [ctb_exe, "-C", "-N", "-f", outfmt, "-l", "-c", thread_count, "-o", outpath, vrtpath],
+                    env=env
                 )
             else:
-                cli_entrypoint(
-                    inpath, outpath, outfmt, dtype, do_contrast, lower, upper
+                # Terrain format can work with less memory
+                memory_limit = "256M"   # 256MB for Terrain format
+                subprocess.call([ctb_exe, "-C", "-f", "Terrain", "-c", thread_count, "-o", outpath, vrtpath], env=env)
+                subprocess.call(
+                    [ctb_exe, "-C", "-f", "Terrain", "-l", "-c", thread_count, "-o", outpath, vrtpath],
+                    env=env
                 )
             self.change_status("Idle")
             self.ipath.set("")
@@ -321,8 +390,11 @@ def main() -> None:
         opt_tab.upper,
     )
 
+    dem_tab = DEMTab(tab_parent, (fd.askopenfilename, fd.askdirectory), opt_tab.format)
+
     tab_parent.add(file_tab, text="File")
     tab_parent.add(dir_tab, text="Directory")
+    tab_parent.add(dem_tab, text="DEM")
     tab_parent.pack(expand=1, fill="both")
     opt_tab.pack(side="bottom", fill="both", expand=True, pady=10)
 
