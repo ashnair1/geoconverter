@@ -24,29 +24,29 @@ jobs:
             python-version: '3.9'
           - os: macos-latest
             python-version: '3.9'
-            
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
       with:
         submodules: 'recursive'
-    
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
-    
+
     - name: Setup Conda
       uses: conda-incubator/setup-miniconda@v2
       with:
         python-version: ${{ matrix.python-version }}
         activate-environment: ctb-test
-        
+
     - name: Install GDAL and dependencies
       shell: bash -l {0}
       run: |
         conda install -c conda-forge gdal=${{ matrix.gdal-version }} cmake ninja zlib
-        
+
     - name: Display environment info
       shell: bash -l {0}
       run: |
@@ -54,7 +54,7 @@ jobs:
         echo "Python version: $(python --version)"
         echo "CMake version: $(cmake --version)"
         echo "Conda prefix: $CONDA_PREFIX"
-        
+
     - name: Configure cesium-terrain-builder (Linux/macOS)
       if: runner.os != 'Windows'
       shell: bash -l {0}
@@ -69,7 +69,7 @@ jobs:
           -DGDAL_INCLUDE_DIR=$CONDA_PREFIX/include \
           -DZLIB_LIBRARY=$CONDA_PREFIX/lib/libz.so \
           -DZLIB_INCLUDE_DIR=$CONDA_PREFIX/include
-          
+
     - name: Configure cesium-terrain-builder (Windows)
       if: runner.os == 'Windows'
       shell: bash -l {0}
@@ -84,13 +84,13 @@ jobs:
           -DGDAL_INCLUDE_DIR=$CONDA_PREFIX/Library/include \
           -DZLIB_LIBRARY=$CONDA_PREFIX/Library/lib/zlib.lib \
           -DZLIB_INCLUDE_DIR=$CONDA_PREFIX/Library/include
-          
+
     - name: Build cesium-terrain-builder
       shell: bash -l {0}
       working-directory: cesium-terrain-builder/build
       run: |
         cmake --build . --config Release -j 2
-        
+
     - name: Test cesium-terrain-builder tools
       shell: bash -l {0}
       working-directory: cesium-terrain-builder/build
@@ -98,31 +98,31 @@ jobs:
         # Test that tools can run and show version
         ./tools/ctb-tile --version || ./tools/Release/ctb-tile.exe --version
         ./tools/ctb-info --version || ./tools/Release/ctb-info.exe --version
-        
+
     - name: Install geoconverter dependencies
       shell: bash -l {0}
       run: |
         pip install numpy
-        
+
     - name: Test geoconverter
       shell: bash -l {0}
       run: |
         # Test that geoconverter can import and run
         python -c "from geoconverter import gdal_convert; print('Import successful')"
         python geoconverter/gdal_convert.py --help
-        
+
     - name: Create test data and run integration test
       shell: bash -l {0}
       run: |
         # Create dummy test data
         python tests/data.py
-        
+
         # Test basic conversion
         python geoconverter/gdal_convert.py -i tests/dummy.tif -o test_output.tif -of GTiff
-        
+
         # Verify output exists
         ls -la test_output.tif
-        
+
   notify-compatibility:
     runs-on: ubuntu-latest
     needs: gdal-compatibility

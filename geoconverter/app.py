@@ -4,11 +4,12 @@ import subprocess
 import sys
 import tkinter as tk
 import traceback
-from osgeo import gdal
 from tkinter import filedialog as fd
 from tkinter import ttk
 from tkinter.messagebox import showerror
 from typing import Any, Tuple, Union
+
+from osgeo import gdal
 
 from geoconverter.gdal_convert import cli_entrypoint
 
@@ -186,14 +187,14 @@ class NotebookTab(DefaultTab):
         do_contrast = bool(self.contrast.get())
         lower = self.low.get()
         upper = self.high.get()
-        
+
         if outfmt in {"Terrain", "Mesh"}:
             showerror(
                 title="Wrong Tab",
-                message="Please use the DEM tab for Terrain and Mesh conversion."
+                message="Please use the DEM tab for Terrain and Mesh conversion.",
             )
             return
-            
+
         if outfmt in DRIVER_MAP:
             outfmt = DRIVER_MAP[outfmt]
 
@@ -238,10 +239,10 @@ class DEMTab(DefaultTab):
 
         try:
             ctb_exe = find_ctb_tile()
-            
+
             # Set up environment for ctb-tile if using relative path
             env = os.environ.copy()
-            if not ctb_exe.startswith('/usr') and not ctb_exe == "ctb-tile":
+            if not ctb_exe.startswith("/usr") and not ctb_exe == "ctb-tile":
                 # Using relative path, need to set LD_LIBRARY_PATH
                 lib_dir = os.path.join(os.path.dirname(ctb_exe), "..", "src")
                 lib_dir = os.path.abspath(lib_dir)
@@ -249,27 +250,74 @@ class DEMTab(DefaultTab):
                     env["LD_LIBRARY_PATH"] = f"{lib_dir}:{env['LD_LIBRARY_PATH']}"
                 else:
                     env["LD_LIBRARY_PATH"] = lib_dir
-            
+
             # Memory optimization parameters
-            thread_count = "2"     # Reduce threads to save memory
-            
+            thread_count = "2"  # Reduce threads to save memory
+
             if outfmt == "Mesh":
                 # Mesh format - let GDAL use default memory management
                 subprocess.call(
-                    [ctb_exe, "-C", "-N", "-f", outfmt, "-c", thread_count, "-o", outpath, vrtpath],
-                    env=env
+                    [
+                        ctb_exe,
+                        "-C",
+                        "-N",
+                        "-f",
+                        outfmt,
+                        "-c",
+                        thread_count,
+                        "-o",
+                        outpath,
+                        vrtpath,
+                    ],
+                    env=env,
                 )
                 subprocess.call(
-                    [ctb_exe, "-C", "-N", "-f", outfmt, "-l", "-c", thread_count, "-o", outpath, vrtpath],
-                    env=env
+                    [
+                        ctb_exe,
+                        "-C",
+                        "-N",
+                        "-f",
+                        outfmt,
+                        "-l",
+                        "-c",
+                        thread_count,
+                        "-o",
+                        outpath,
+                        vrtpath,
+                    ],
+                    env=env,
                 )
             else:
                 # Terrain format can work with less memory
-                memory_limit = "256M"   # 256MB for Terrain format
-                subprocess.call([ctb_exe, "-C", "-f", "Terrain", "-c", thread_count, "-o", outpath, vrtpath], env=env)
+                memory_limit = "256M"  # 256MB for Terrain format
                 subprocess.call(
-                    [ctb_exe, "-C", "-f", "Terrain", "-l", "-c", thread_count, "-o", outpath, vrtpath],
-                    env=env
+                    [
+                        ctb_exe,
+                        "-C",
+                        "-f",
+                        "Terrain",
+                        "-c",
+                        thread_count,
+                        "-o",
+                        outpath,
+                        vrtpath,
+                    ],
+                    env=env,
+                )
+                subprocess.call(
+                    [
+                        ctb_exe,
+                        "-C",
+                        "-f",
+                        "Terrain",
+                        "-l",
+                        "-c",
+                        thread_count,
+                        "-o",
+                        outpath,
+                        vrtpath,
+                    ],
+                    env=env,
                 )
             self.change_status("Idle")
             self.ipath.set("")

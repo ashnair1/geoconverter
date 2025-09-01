@@ -78,7 +78,7 @@ namespace ctb::gdal_compat {
 ### 1. Automated Testing
 
 #### GitHub Actions Matrix
-- **OS**: Ubuntu, Windows, macOS  
+- **OS**: Ubuntu, Windows, macOS
 - **GDAL**: 3.8, 3.9, 3.10, 3.11
 - **Python**: 3.9, 3.10, 3.11
 - **Schedule**: Weekly runs to catch new releases
@@ -88,7 +88,7 @@ namespace ctb::gdal_compat {
 # Test all GDAL versions
 ./scripts/test_gdal_compatibility.sh
 
-# Test specific version  
+# Test specific version
 ./scripts/test_gdal_compatibility.sh 3.11
 ```
 
@@ -222,6 +222,6 @@ cmake .. \
 
 ---
 
-*Last updated: 2025-01-31*  
-*Compatible with: GDAL 3.8 - 3.11*  
+*Last updated: 2025-01-31*
+*Compatible with: GDAL 3.8 - 3.11*
 *Status: ✅ All tested versions working*
